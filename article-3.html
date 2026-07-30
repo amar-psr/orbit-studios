@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Java vs Python for Backend Development | Orbit Studios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orbit: {
+                            bg: '#0B0D12', card: '#121620', border: '#1F2636',
+                            accent: '#6366F1', accentGlow: '#818CF8',
+                            cyan: '#06B6D4', text: '#F3F4F6', muted: '#9CA3AF'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0B0D12; color: #F3F4F6; overflow-x: hidden; }
+
+        .glass-nav {
+            background: rgba(11,13,18,0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+        }
+        .nav-inner { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+
+        .article-body h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+            font-weight: 700; color: #F3F4F6;
+            margin: 2.5rem 0 1rem; line-height: 1.2;
+        }
+        .article-body h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.1rem, 1.8vw, 1.3rem);
+            font-weight: 600; color: #818CF8;
+            margin: 2rem 0 0.75rem;
+        }
+        .article-body p { color: #9CA3AF; font-size: 1rem; line-height: 1.85; margin-bottom: 1.25rem; }
+        .article-body ul { list-style: none; padding: 0; margin-bottom: 1.25rem; }
+        .article-body ul li {
+            color: #9CA3AF; font-size: 1rem; line-height: 1.85;
+            padding-left: 1.5rem; position: relative; margin-bottom: 0.5rem;
+        }
+        .article-body ul li::before { content: '→'; position: absolute; left: 0; color: #818CF8; }
+        .article-body strong { color: #F3F4F6; font-weight: 600; }
+
+        /* Comparison table */
+        .compare-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        @media (max-width: 600px) { .compare-grid { grid-template-columns: 1fr; } }
+
+        .compare-card {
+            background: rgba(18,22,32,0.8);
+            border: 1px solid rgba(31,38,54,1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+        .compare-card.java  { border-top: 2px solid #4FB3FF; }
+        .compare-card.python { border-top: 2px solid #FFD166; }
+
+        .compare-card h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700; font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+        .compare-card.java h4  { color: #4FB3FF; }
+        .compare-card.python h4 { color: #FFD166; }
+
+        .compare-card ul { list-style: none; padding: 0; margin: 0; }
+        .compare-card ul li {
+            color: #9CA3AF; font-size: 0.875rem;
+            line-height: 1.7; padding-left: 1.25rem;
+            position: relative; margin-bottom: 0.4rem;
+        }
+        .compare-card.java   ul li::before { content: '+'; position: absolute; left: 0; color: #4FB3FF; font-weight: 700; }
+        .compare-card.python ul li::before { content: '+'; position: absolute; left: 0; color: #FFD166; font-weight: 700; }
+
+        .verdict-box {
+            background: rgba(129,140,248,0.06);
+            border: 1px solid rgba(129,140,248,0.2);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .verdict-box p { color: #C7D2FE; margin: 0; font-size: 0.95rem; line-height: 1.75; }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <!-- Nav -->
+    <header class="glass-nav">
+        <div class="nav-inner max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-orbit-accentGlow flex items-center justify-center font-heading font-bold text-white shadow-lg shadow-orbit-accentGlow/30 group-hover:scale-105 transition-transform">O</div>
+                <span class="font-heading font-bold text-xl tracking-tight text-white">Orbit<span class="text-orbit-accentGlow">.</span>Studios</span>
+            </a>
+            <nav class="hidden md:flex items-center gap-8 font-medium text-sm text-orbit-muted">
+                <a href="index.html#about" class="hover:text-white transition-colors">About Us</a>
+                <a href="index.html#courses" class="hover:text-white transition-colors">Courses</a>
+                <a href="index.html#blog" class="hover:text-white transition-colors">Blog</a>
+            </nav>
+            <a href="index.html#contact" class="px-5 py-2.5 rounded-full text-sm font-semibold bg-white/10 text-white border border-white/15 hover:bg-white hover:text-orbit-bg transition-all duration-300">
+                Contact Us
+            </a>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-24 px-6">
+        <div class="max-w-3xl mx-auto">
+
+            <a href="index.html#blog" class="inline-flex items-center gap-2 text-orbit-muted text-sm hover:text-white transition-colors mb-10">
+                ← Back to Articles
+            </a>
+
+            <!-- Header -->
+            <div class="mb-12">
+                <div class="flex flex-wrap gap-2 mb-5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Java</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Python</span>
+                </div>
+                <h1 class="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight mb-6">
+                    Java vs Python for Backend Development
+                </h1>
+                <p class="text-orbit-muted text-lg leading-relaxed">
+                    Both languages dominate backend development. But they serve different masters. Here's an honest breakdown of when to use each — and when the choice is already made for you.
+                </p>
+                <div class="mt-6 pt-6 border-t border-orbit-border flex items-center gap-4 text-orbit-muted text-sm">
+                    <span>By Orbit Studios</span>
+                    <span>·</span>
+                    <span>July 2026</span>
+                    <span>·</span>
+                    <span>9 min read</span>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="article-body">
+
+                <p>
+                    Java and Python are both mature, battle-tested languages with massive ecosystems. The debate between them is one of the oldest in software engineering — and the answer is genuinely "it depends." This article will give you the concrete criteria to make that call confidently.
+                </p>
+
+                <h2>At a Glance</h2>
+
+                <div class="compare-grid">
+                    <div class="compare-card java">
+                        <h4>Java</h4>
+                        <ul>
+                            <li>Statically typed — catch errors at compile time</li>
+                            <li>Blazing fast runtime performance (JVM)</li>
+                            <li>Spring Boot ecosystem is enterprise gold standard</li>
+                            <li>Verbose, but readable at scale</li>
+                            <li>Dominant in banking, fintech, e-commerce</li>
+                            <li>Strong multi-threading support</li>
+                        </ul>
+                    </div>
+                    <div class="compare-card python">
+                        <h4>Python</h4>
+                        <ul>
+                            <li>Dynamically typed — faster to write, easier to prototype</li>
+                            <li>Clean, readable syntax with minimal boilerplate</li>
+                            <li>Django and FastAPI cover most backend needs</li>
+                            <li>First-class citizen in data science and ML</li>
+                            <li>Dominant in startups, research, scripting</li>
+                            <li>Slower raw performance than Java</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h2>Performance</h2>
+                <p>
+                    Java wins on raw runtime performance. The JVM is heavily optimised, and Java applications regularly outperform Python by 5–20× on CPU-bound tasks. For high-throughput APIs handling thousands of concurrent requests, this matters.
+                </p>
+                <p>
+                    Python's GIL (Global Interpreter Lock) limits true multi-threading for CPU-bound work. However, for I/O-bound tasks — which most web APIs are — <strong>Python with async frameworks like FastAPI can match Java throughput</strong> at a fraction of the code volume.
+                </p>
+
+                <h2>Developer Productivity</h2>
+                <p>
+                    Python wins on speed of development. Less boilerplate, dynamic typing, and a REPL-friendly workflow mean you can go from idea to working prototype faster. This is why most startups and MVPs favour Python.
+                </p>
+                <p>
+                    Java's verbosity is a feature at scale. When a codebase has 50 engineers, static types, explicit interfaces, and Spring Boot's structured conventions become <strong>an asset, not a burden</strong>. Refactoring a Java codebase is safer and more predictable.
+                </p>
+
+                <h2>Job Market</h2>
+                <p>
+                    Both are in high demand but in different sectors:
+                </p>
+                <ul>
+                    <li><strong>Java</strong> — banking, insurance, fintech, large enterprises, Android development</li>
+                    <li><strong>Python</strong> — startups, data engineering, machine learning, DevOps tooling, research</li>
+                </ul>
+                <p>
+                    Java backend roles tend to pay more on average in enterprise sectors. Python roles in ML/AI are among the highest-paying in the industry right now.
+                </p>
+
+                <h2>When the Choice Is Already Made</h2>
+                <p>
+                    In practice, many developers don't get to choose freely. The decision is often made by:
+                </p>
+                <ul>
+                    <li>Your team's existing stack and expertise</li>
+                    <li>The problem domain (ML pipeline → Python, enterprise API → Java)</li>
+                    <li>Existing company infrastructure</li>
+                    <li>Third-party SDK availability</li>
+                </ul>
+
+                <h2>Verdict</h2>
+
+                <div class="verdict-box">
+                    <p>
+                        <strong style="color:#F3F4F6;">Choose Java</strong> if you're targeting enterprise roles, want a strongly-typed system, or are building high-throughput services at scale.<br><br>
+                        <strong style="color:#F3F4F6;">Choose Python</strong> if you want to ship fast, work in data science or ML, or are building at a startup where iteration speed matters more than architectural rigidity.<br><br>
+                        <strong style="color:#F3F4F6;">Learn both eventually.</strong> They are not competitors in your career — they are different tools for different jobs. A backend engineer who is fluent in both is significantly more valuable than one who knows only one.
+                    </p>
+                </div>
+
+                <h2>Our Take at Orbit Studios</h2>
+                <p>
+                    We teach both. Our Spring Boot course gives you enterprise Java fundamentals. Our Python content covers scripting and backend basics. The goal isn't to pick a winner — it's to give you the context to make the right call on any project.
+                </p>
+
+            </div>
+
+            <div class="mt-16 pt-8 border-t border-orbit-border">
+                <a href="index.html#blog" class="inline-flex items-center gap-2 text-orbit-muted text-sm hover:text-white transition-colors">
+                    ← Back to all articles
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="py-10 border-t border-orbit-border/40 text-center text-xs text-orbit-muted">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2 font-heading font-bold text-white"><span>Orbit Studios</span></div>
+            <p>© 2026 Orbit Studios. All rights reserved. Built for practical learning.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

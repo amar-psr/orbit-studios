@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beginner's Guide to API Testing with Playwright | Orbit Studios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orbit: {
+                            bg: '#0B0D12', card: '#121620', border: '#1F2636',
+                            accent: '#6366F1', accentGlow: '#818CF8',
+                            cyan: '#06B6D4', text: '#F3F4F6', muted: '#9CA3AF'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0B0D12; color: #F3F4F6; overflow-x: hidden; }
+
+        .glass-nav {
+            background: rgba(11,13,18,0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+        }
+        .nav-inner { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+
+        .article-body h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+            font-weight: 700; color: #F3F4F6;
+            margin: 2.5rem 0 1rem; line-height: 1.2;
+        }
+        .article-body h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.1rem, 1.8vw, 1.3rem);
+            font-weight: 600; color: #818CF8;
+            margin: 2rem 0 0.75rem;
+        }
+        .article-body p { color: #9CA3AF; font-size: 1rem; line-height: 1.85; margin-bottom: 1.25rem; }
+        .article-body ul { list-style: none; padding: 0; margin-bottom: 1.25rem; }
+        .article-body ul li {
+            color: #9CA3AF; font-size: 1rem; line-height: 1.85;
+            padding-left: 1.5rem; position: relative; margin-bottom: 0.5rem;
+        }
+        .article-body ul li::before { content: '→'; position: absolute; left: 0; color: #818CF8; }
+        .article-body strong { color: #F3F4F6; font-weight: 600; }
+
+        /* Code block */
+        .code-block {
+            background: #0D1117;
+            border: 1px solid rgba(31,38,54,1);
+            border-radius: 0.75rem;
+            padding: 1.25rem 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+        .code-block pre {
+            font-family: 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.7;
+            color: #E2E8F0;
+            margin: 0;
+            white-space: pre;
+        }
+        .code-block .kw  { color: #818CF8; }
+        .code-block .fn  { color: #06B6D4; }
+        .code-block .str { color: #86EFAC; }
+        .code-block .cmt { color: #4B5563; font-style: italic; }
+        .code-block .num { color: #FCD34D; }
+
+        .callout {
+            background: rgba(129,140,248,0.07);
+            border-left: 3px solid #818CF8;
+            border-radius: 0 0.5rem 0.5rem 0;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            color: #C7D2FE;
+            font-size: 0.9rem;
+            line-height: 1.7;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <!-- Nav -->
+    <header class="glass-nav">
+        <div class="nav-inner max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-orbit-accentGlow flex items-center justify-center font-heading font-bold text-white shadow-lg shadow-orbit-accentGlow/30 group-hover:scale-105 transition-transform">O</div>
+                <span class="font-heading font-bold text-xl tracking-tight text-white">Orbit<span class="text-orbit-accentGlow">.</span>Studios</span>
+            </a>
+            <nav class="hidden md:flex items-center gap-8 font-medium text-sm text-orbit-muted">
+                <a href="index.html#about" class="hover:text-white transition-colors">About Us</a>
+                <a href="index.html#courses" class="hover:text-white transition-colors">Courses</a>
+                <a href="index.html#blog" class="hover:text-white transition-colors">Blog</a>
+            </nav>
+            <a href="index.html#contact" class="px-5 py-2.5 rounded-full text-sm font-semibold bg-white/10 text-white border border-white/15 hover:bg-white hover:text-orbit-bg transition-all duration-300">
+                Contact Us
+            </a>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-24 px-6">
+        <div class="max-w-3xl mx-auto">
+
+            <a href="index.html#blog" class="inline-flex items-center gap-2 text-orbit-muted text-sm hover:text-white transition-colors mb-10">
+                ← Back to Articles
+            </a>
+
+            <!-- Header -->
+            <div class="mb-12">
+                <div class="flex flex-wrap gap-2 mb-5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Playwright</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Testing</span>
+                </div>
+                <h1 class="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight mb-6">
+                    Beginner's Guide to API Testing with Playwright
+                </h1>
+                <p class="text-orbit-muted text-lg leading-relaxed">
+                    Most people know Playwright for browser automation. Fewer know it has a powerful built-in HTTP client that makes API testing clean, fast, and easy to integrate with your existing test suite.
+                </p>
+                <div class="mt-6 pt-6 border-t border-orbit-border flex items-center gap-4 text-orbit-muted text-sm">
+                    <span>By Orbit Studios</span>
+                    <span>·</span>
+                    <span>July 2026</span>
+                    <span>·</span>
+                    <span>7 min read</span>
+                </div>
+            </div>
+
+            <!-- Body -->
+            <div class="article-body">
+
+                <p>
+                    Playwright is best known as a browser automation framework. But since version 1.16, it ships with a full <strong>APIRequestContext</strong> — a native HTTP client you can use to test REST APIs directly, no browser required. This makes it possible to combine UI and API tests in a single framework and a single test run.
+                </p>
+
+                <div class="callout">
+                    This guide assumes you have Node.js installed and basic familiarity with JavaScript. No prior Playwright experience needed.
+                </div>
+
+                <h2>Setting Up</h2>
+                <p>Install Playwright and initialise a project:</p>
+
+                <div class="code-block"><pre><span class="cmt"># Install Playwright</span>
+npm init playwright@latest
+
+<span class="cmt"># Or add to an existing project</span>
+npm install --save-dev @playwright/test</pre></div>
+
+                <p>Create a file <strong>tests/api.spec.ts</strong> — this is where your API tests will live.</p>
+
+                <h2>Your First API Test</h2>
+                <p>
+                    Playwright exposes <strong>request</strong> as a fixture inside test blocks. Here's a simple GET request test against a public API:
+                </p>
+
+                <div class="code-block"><pre><span class="kw">import</span> { test, expect } <span class="kw">from</span> <span class="str">'@playwright/test'</span>;
+
+test(<span class="str">'GET /users returns 200'</span>, <span class="kw">async</span> ({ request }) => {
+  <span class="kw">const</span> response = <span class="kw">await</span> request.<span class="fn">get</span>(
+    <span class="str">'https://jsonplaceholder.typicode.com/users'</span>
+  );
+
+  expect(response.<span class="fn">status</span>()).<span class="fn">toBe</span>(<span class="num">200</span>);
+
+  <span class="kw">const</span> body = <span class="kw">await</span> response.<span class="fn">json</span>();
+  expect(body.<span class="fn">length</span>).<span class="fn">toBeGreaterThan</span>(<span class="num">0</span>);
+});</pre></div>
+
+                <p>Run it with:</p>
+                <div class="code-block"><pre>npx playwright test tests/api.spec.ts</pre></div>
+
+                <h2>POST, PUT, DELETE</h2>
+                <p>The API is consistent across all HTTP methods:</p>
+
+                <div class="code-block"><pre><span class="cmt">// POST — create a resource</span>
+<span class="kw">const</span> res = <span class="kw">await</span> request.<span class="fn">post</span>(<span class="str">'/api/posts'</span>, {
+  data: { title: <span class="str">'Hello World'</span>, body: <span class="str">'Content here'</span>, userId: <span class="num">1</span> }
+});
+expect(res.<span class="fn">status</span>()).<span class="fn">toBe</span>(<span class="num">201</span>);
+
+<span class="cmt">// PUT — update a resource</span>
+<span class="kw">const</span> updated = <span class="kw">await</span> request.<span class="fn">put</span>(<span class="str">'/api/posts/1'</span>, {
+  data: { title: <span class="str">'Updated title'</span> }
+});
+expect(updated.<span class="fn">ok</span>()).<span class="fn">toBeTruthy</span>();
+
+<span class="cmt">// DELETE</span>
+<span class="kw">const</span> deleted = <span class="kw">await</span> request.<span class="fn">delete</span>(<span class="str">'/api/posts/1'</span>);
+expect(deleted.<span class="fn">status</span>()).<span class="fn">toBe</span>(<span class="num">200</span>);</pre></div>
+
+                <h2>Authentication</h2>
+                <p>Pass headers directly on each request or set them globally via <strong>extraHTTPHeaders</strong> in your Playwright config:</p>
+
+                <div class="code-block"><pre><span class="cmt">// playwright.config.ts</span>
+<span class="kw">export default</span> {
+  use: {
+    baseURL: <span class="str">'https://api.yourapp.com'</span>,
+    extraHTTPHeaders: {
+      <span class="str">'Authorization'</span>: <span class="str">`Bearer ${process.env.API_TOKEN}`</span>,
+      <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>,
+    }
+  }
+};</pre></div>
+
+                <h2>Combining UI and API Tests</h2>
+                <p>
+                    The real power comes when you mix both. Use API calls to <strong>set up test state</strong> fast, then verify the result in the browser — no slow UI setup flows:
+                </p>
+
+                <div class="code-block"><pre>test(<span class="str">'created post appears in UI'</span>, <span class="kw">async</span> ({ page, request }) => {
+  <span class="cmt">// Create data via API (fast)</span>
+  <span class="kw">await</span> request.<span class="fn">post</span>(<span class="str">'/api/posts'</span>, {
+    data: { title: <span class="str">'My Test Post'</span> }
+  });
+
+  <span class="cmt">// Verify in the browser (UI)</span>
+  <span class="kw">await</span> page.<span class="fn">goto</span>(<span class="str">'/posts'</span>);
+  <span class="kw">await</span> expect(page.<span class="fn">locator</span>(<span class="str">'text=My Test Post'</span>))
+    .<span class="fn">toBeVisible</span>();
+});</pre></div>
+
+                <h2>Key Takeaways</h2>
+                <ul>
+                    <li>Playwright's <strong>request</strong> fixture gives you a full HTTP client with zero extra dependencies</li>
+                    <li>All HTTP methods are supported — GET, POST, PUT, PATCH, DELETE</li>
+                    <li>Set shared headers globally in <strong>playwright.config.ts</strong></li>
+                    <li>Mix API setup with UI assertions in the same test for fast, reliable e2e coverage</li>
+                    <li>Run API-only tests headlessly — they're much faster than browser tests</li>
+                </ul>
+
+                <h2>What's Next</h2>
+                <p>
+                    Once you're comfortable with basic requests, explore Playwright's <strong>APIRequestContext</strong> for session management, response body schema validation with libraries like Zod or Joi, and parallel test execution with Playwright's built-in sharding.
+                </p>
+                <p>
+                    Check out our full Playwright course for a complete walkthrough from setup to CI/CD integration.
+                </p>
+
+            </div>
+
+            <div class="mt-16 pt-8 border-t border-orbit-border">
+                <a href="index.html#blog" class="inline-flex items-center gap-2 text-orbit-muted text-sm hover:text-white transition-colors">
+                    ← Back to all articles
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="py-10 border-t border-orbit-border/40 text-center text-xs text-orbit-muted">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2 font-heading font-bold text-white"><span>Orbit Studios</span></div>
+            <p>© 2026 Orbit Studios. All rights reserved. Built for practical learning.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 — Lost in Space | Orbit Studios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orbit: {
+                            bg: '#0B0D12', card: '#121620', border: '#1F2636',
+                            accentGlow: '#818CF8', muted: '#9CA3AF'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #080A0F;
+            color: #F3F4F6;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            min-height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Starfield canvas — fixed background */
+        #bg-canvas {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Floating astronaut illustration */
+        #astronaut-canvas {
+            width: min(280px, 55vw);
+            height: min(280px, 55vw);
+            margin-bottom: 2rem;
+            animation: float 5s ease-in-out infinite;
+            filter: drop-shadow(0 0 40px rgba(129,140,248,0.25));
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(-3deg); }
+            50%       { transform: translateY(-22px) rotate(3deg); }
+        }
+
+        .error-code {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(5rem, 18vw, 11rem);
+            font-weight: 800;
+            line-height: 1;
+            background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, #818CF8 60%, rgba(129,140,248,0.4) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.04em;
+            margin-bottom: 0.5rem;
+        }
+
+        .tagline {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.3rem, 3vw, 2rem);
+            font-weight: 700;
+            color: #F3F4F6;
+            margin-bottom: 1rem;
+        }
+
+        .subtext {
+            color: #9CA3AF;
+            font-size: clamp(0.9rem, 1.5vw, 1rem);
+            max-width: 420px;
+            line-height: 1.7;
+            margin-bottom: 2.5rem;
+        }
+
+        .btn-home {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.85rem 2rem;
+            border-radius: 999px;
+            background: #818CF8;
+            color: #fff;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: background 0.25s, transform 0.2s, box-shadow 0.25s;
+            box-shadow: 0 0 30px rgba(129,140,248,0.3);
+        }
+        .btn-home:hover {
+            background: rgba(129,140,248,0.85);
+            transform: translateY(-2px);
+            box-shadow: 0 0 44px rgba(129,140,248,0.45);
+        }
+
+        .nav-logo {
+            position: fixed;
+            top: 1.5rem;
+            left: 1.75rem;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-decoration: none;
+        }
+        .nav-logo-icon {
+            width: 2.2rem; height: 2.2rem;
+            border-radius: 0.6rem;
+            background: #818CF8;
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700; color: #fff; font-size: 1rem;
+        }
+        .nav-logo-text {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700; font-size: 1.05rem; color: #fff;
+        }
+        .nav-logo-text span { color: #818CF8; }
+    </style>
+</head>
+<body>
+
+    <!-- Logo -->
+    <a href="index.html" class="nav-logo">
+        <div class="nav-logo-icon">O</div>
+        <span class="nav-logo-text">Orbit<span>.</span>Studios</span>
+    </a>
+
+    <!-- Starfield + floating debris background -->
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="content">
+        <!-- Astronaut illustration -->
+        <canvas id="astronaut-canvas" width="560" height="560"></canvas>
+
+        <div class="error-code">404</div>
+        <div class="tagline">Lost in Space</div>
+        <p class="subtext">
+            Looks like this page drifted out of orbit. The URL might be wrong, or the page may have moved. Let's get you back to base.
+        </p>
+        <a href="index.html" class="btn-home">
+            ← Return to Home
+        </a>
+    </div>
+
+    <script>
+    // ── Starfield background ────────────────────────────────────────────────
+    (function(){
+        const canvas = document.getElementById('bg-canvas');
+        const ctx    = canvas.getContext('2d');
+        let W, H, stars = [];
+
+        function init(){
+            W = canvas.width  = window.innerWidth;
+            H = canvas.height = window.innerHeight;
+            stars = Array.from({length: 260}, () => ({
+                x: Math.random() * W,
+                y: Math.random() * H,
+                r: Math.random() * 1.4 + 0.3,
+                a: Math.random(),
+                speed: Math.random() * 0.003 + 0.001,
+                phase: Math.random() * Math.PI * 2
+            }));
+        }
+
+        function draw(t){
+            ctx.clearRect(0, 0, W, H);
+            stars.forEach(s => {
+                const alpha = s.a * (0.5 + 0.5 * Math.sin(t * s.speed * 1000 + s.phase));
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+                ctx.fill();
+            });
+            requestAnimationFrame(draw);
+        }
+
+        init();
+        window.addEventListener('resize', init);
+        requestAnimationFrame(draw);
+    })();
+
+    // ── Astronaut illustration ──────────────────────────────────────────────
+    (function(){
+        const c   = document.getElementById('astronaut-canvas');
+        const ctx = c.getContext('2d');
+        const W   = c.width, H = c.height;
+        const cx  = W / 2,  cy = H / 2;
+
+        function draw(){
+            ctx.clearRect(0, 0, W, H);
+
+            // --- Tether / rope ---
+            ctx.beginPath();
+            ctx.moveTo(cx + 10, cy + 120);
+            ctx.bezierCurveTo(cx + 80, cy + 160, cx + 120, cy + 60, cx + 60, cy - 30);
+            ctx.strokeStyle = 'rgba(255,255,255,0.18)';
+            ctx.lineWidth = 2.5;
+            ctx.setLineDash([6, 8]);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // --- Backpack ---
+            roundRect(ctx, cx - 38, cy - 40, 76, 90, 14,
+                '#1A1F30', 'rgba(129,140,248,0.35)', 2);
+
+            // --- Body suit ---
+            roundRect(ctx, cx - 46, cy - 60, 92, 110, 22,
+                '#D0D8F0', 'rgba(200,210,255,0.4)', 2);
+
+            // --- Visor frame (helmet) ---
+            ctx.beginPath();
+            ctx.arc(cx, cy - 88, 62, 0, Math.PI * 2);
+            ctx.fillStyle   = '#C8D2EE';
+            ctx.fill();
+            ctx.strokeStyle = 'rgba(180,190,230,0.5)';
+            ctx.lineWidth   = 3;
+            ctx.stroke();
+
+            // --- Visor glass ---
+            ctx.save();
+            ctx.beginPath();
+            ctx.ellipse(cx + 4, cy - 88, 42, 36, 0.15, 0, Math.PI * 2);
+            const vg = ctx.createRadialGradient(cx - 10, cy - 104, 4, cx + 4, cy - 88, 42);
+            vg.addColorStop(0,   'rgba(180,210,255,0.9)');
+            vg.addColorStop(0.4, 'rgba(80,120,220,0.7)');
+            vg.addColorStop(1,   'rgba(10,20,60,0.95)');
+            ctx.fillStyle = vg;
+            ctx.fill();
+
+            // Visor reflection glint
+            ctx.beginPath();
+            ctx.ellipse(cx - 14, cy - 104, 12, 6, -0.4, 0, Math.PI * 2);
+            ctx.fillStyle = 'rgba(255,255,255,0.45)';
+            ctx.fill();
+            ctx.restore();
+
+            // --- Helmet stripe ---
+            ctx.beginPath();
+            ctx.arc(cx, cy - 88, 62, Math.PI * 0.8, Math.PI * 1.4);
+            ctx.strokeStyle = '#818CF8';
+            ctx.lineWidth   = 6;
+            ctx.stroke();
+
+            // --- Arms ---
+            // Left arm
+            roundRect(ctx, cx - 82, cy - 38, 38, 60, 16,
+                '#B8C4E0', 'rgba(160,180,240,0.3)', 1.5);
+            // Left glove
+            ctx.beginPath();
+            ctx.ellipse(cx - 63, cy + 28, 18, 14, 0.2, 0, Math.PI * 2);
+            ctx.fillStyle = '#818CF8';
+            ctx.fill();
+
+            // Right arm
+            roundRect(ctx, cx + 44, cy - 38, 38, 60, 16,
+                '#B8C4E0', 'rgba(160,180,240,0.3)', 1.5);
+            // Right glove
+            ctx.beginPath();
+            ctx.ellipse(cx + 63, cy + 28, 18, 14, -0.2, 0, Math.PI * 2);
+            ctx.fillStyle = '#818CF8';
+            ctx.fill();
+
+            // --- Legs ---
+            roundRect(ctx, cx - 38, cy + 46, 34, 68, 14,
+                '#B8C4E0', 'rgba(160,180,240,0.3)', 1.5);
+            roundRect(ctx, cx + 4,  cy + 46, 34, 68, 14,
+                '#B8C4E0', 'rgba(160,180,240,0.3)', 1.5);
+
+            // Boots
+            roundRect(ctx, cx - 42, cy + 104, 40, 22, 8,
+                '#818CF8', 'rgba(100,110,220,0.4)', 1.5);
+            roundRect(ctx, cx + 2,  cy + 104, 40, 22, 8,
+                '#818CF8', 'rgba(100,110,220,0.4)', 1.5);
+
+            // --- Chest badge ---
+            roundRect(ctx, cx - 20, cy - 20, 40, 28, 6,
+                'rgba(129,140,248,0.2)', '#818CF8', 1.5);
+            ctx.font      = 'bold 11px Space Grotesk, sans-serif';
+            ctx.fillStyle = '#818CF8';
+            ctx.textAlign = 'center';
+            ctx.fillText('ORBIT', cx, cy - 1);
+
+            // --- Small floating wrench / tool ---
+            ctx.save();
+            ctx.translate(cx + 105, cy - 55);
+            ctx.rotate(0.6);
+            ctx.fillStyle   = '#9CA3AF';
+            ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+            ctx.lineWidth   = 1;
+            roundRect(ctx, -4, -18, 8, 36, 3, '#9CA3AF', 'rgba(255,255,255,0.15)', 1);
+            ctx.beginPath();
+            ctx.arc(0, -18, 10, 0, Math.PI * 2);
+            ctx.fillStyle = '#6B7280'; ctx.fill(); ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(0, 18, 10, 0, Math.PI * 2);
+            ctx.fill(); ctx.stroke();
+            ctx.restore();
+
+            // --- Small planet in top-left ---
+            const pg = ctx.createRadialGradient(cx - 120, cy - 130, 4, cx - 120, cy - 130, 38);
+            pg.addColorStop(0,   '#4FB3FF');
+            pg.addColorStop(0.6, '#2563EB');
+            pg.addColorStop(1,   '#0F172A');
+            ctx.beginPath();
+            ctx.arc(cx - 120, cy - 130, 38, 0, Math.PI * 2);
+            ctx.fillStyle = pg;
+            ctx.fill();
+
+            // Planet ring
+            ctx.save();
+            ctx.translate(cx - 120, cy - 130);
+            ctx.scale(1, 0.32);
+            ctx.beginPath();
+            ctx.arc(0, 0, 56, 0, Math.PI * 2);
+            ctx.strokeStyle = 'rgba(79,179,255,0.4)';
+            ctx.lineWidth   = 5;
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        // Helper: rounded rect with fill + stroke
+        function roundRect(ctx, x, y, w, h, r, fill, stroke, lw){
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+            if(fill)   { ctx.fillStyle = fill; ctx.fill(); }
+            if(stroke) { ctx.strokeStyle = stroke; ctx.lineWidth = lw || 1; ctx.stroke(); }
+        }
+
+        draw();
+    })();
+    </script>
+</body>
+</html>

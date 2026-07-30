@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top 5 Backend Frameworks to Learn | Orbit Studios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orbit: {
+                            bg: '#0B0D12', card: '#121620', border: '#1F2636',
+                            accent: '#6366F1', accentGlow: '#818CF8',
+                            cyan: '#06B6D4', text: '#F3F4F6', muted: '#9CA3AF'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0B0D12; color: #F3F4F6; overflow-x: hidden; }
+
+        .glass-nav {
+            background: rgba(11,13,18,0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+        }
+        .nav-inner {
+            width: 100%;
+            display: flex; align-items: center; justify-content: space-between;
+        }
+
+        /* Article prose styles */
+        .article-body h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+            font-weight: 700;
+            color: #F3F4F6;
+            margin: 2.5rem 0 1rem;
+            line-height: 1.2;
+        }
+        .article-body h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.1rem, 1.8vw, 1.3rem);
+            font-weight: 600;
+            color: #818CF8;
+            margin: 2rem 0 0.75rem;
+        }
+        .article-body p {
+            color: #9CA3AF;
+            font-size: 1rem;
+            line-height: 1.85;
+            margin-bottom: 1.25rem;
+        }
+        .article-body ul {
+            list-style: none;
+            padding: 0;
+            margin-bottom: 1.25rem;
+        }
+        .article-body ul li {
+            color: #9CA3AF;
+            font-size: 1rem;
+            line-height: 1.85;
+            padding-left: 1.5rem;
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+        .article-body ul li::before {
+            content: '→';
+            position: absolute;
+            left: 0;
+            color: #818CF8;
+        }
+        .article-body strong { color: #F3F4F6; font-weight: 600; }
+        .article-body a { color: #818CF8; text-decoration: underline; text-underline-offset: 3px; }
+
+        .framework-card {
+            background: rgba(18,22,32,0.8);
+            border: 1px solid rgba(31,38,54,1);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            transition: border-color 0.3s ease;
+        }
+        .framework-card:hover { border-color: rgba(129,140,248,0.35); }
+        .framework-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 2rem; height: 2rem;
+            border-radius: 0.5rem;
+            background: rgba(129,140,248,0.12);
+            border: 1px solid rgba(129,140,248,0.25);
+            color: #818CF8;
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <!-- Nav -->
+    <header class="glass-nav">
+        <div class="nav-inner max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-orbit-accentGlow flex items-center justify-center font-heading font-bold text-white shadow-lg shadow-orbit-accentGlow/30 group-hover:scale-105 transition-transform">O</div>
+                <span class="font-heading font-bold text-xl tracking-tight text-white">Orbit<span class="text-orbit-accentGlow">.</span>Studios</span>
+            </a>
+            <nav class="hidden md:flex items-center gap-8 font-medium text-sm text-orbit-muted">
+                <a href="index.html#about" class="hover:text-white transition-colors">About Us</a>
+                <a href="index.html#courses" class="hover:text-white transition-colors">Courses</a>
+                <a href="index.html#blog" class="hover:text-white transition-colors">Blog</a>
+            </nav>
+            <a href="index.html#contact" class="px-5 py-2.5 rounded-full text-sm font-semibold bg-white/10 text-white border border-white/15 hover:bg-white hover:text-orbit-bg transition-all duration-300">
+                Contact Us
+            </a>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-24 px-6">
+        <div class="max-w-3xl mx-auto">
+
+            <!-- Back link -->
+            <a href="index.html#blog" class="inline-flex items-center gap-2 text-orbit-muted text-sm hover:text-white transition-colors mb-10">
+                ← Back to Articles
+            </a>
+
+            <!-- Article header -->
+            <div class="mb-12">
+                <div class="flex flex-wrap gap-2 mb-5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Backend</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Programming</span>
+                </div>
+                <h1 class="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight mb-6">
+                    Top 5 Backend Frameworks to Learn in 2026
+                </h1>
+                <p class="text-orbit-muted text-lg leading-relaxed">
+                    The backend landscape is vast. Here's a focused breakdown of the five frameworks that will give you the best return on your learning investment right now.
+                </p>
+                <div class="mt-6 pt-6 border-t border-orbit-border flex items-center gap-4 text-orbit-muted text-sm">
+                    <span>By Orbit Studios</span>
+                    <span>·</span>
+                    <span>July 2026</span>
+                    <span>·</span>
+                    <span>8 min read</span>
+                </div>
+            </div>
+
+            <!-- Article body -->
+            <div class="article-body">
+
+                <p>
+                    Choosing a backend framework is one of the most important decisions you'll make as a developer. The right choice depends on the language you're comfortable with, the type of projects you want to build, and the job market you're targeting. This article cuts through the noise and gives you the five frameworks worth your time.
+                </p>
+
+                <h2>The 5 Frameworks</h2>
+
+                <div class="framework-card">
+                    <div class="framework-number">01</div>
+                    <h3 style="margin-top:0;">Spring Boot (Java)</h3>
+                    <p>Spring Boot is the industry standard for enterprise Java development. It's the framework that powers some of the largest banking, fintech, and e-commerce systems in the world. If you're serious about a backend engineering career in a large company, Spring Boot is non-negotiable.</p>
+                    <ul>
+                        <li>Massive adoption in enterprise and fintech</li>
+                        <li>Excellent tooling — Spring Initializr, Spring Data JPA, Spring Security</li>
+                        <li>Strong job market with high salaries</li>
+                        <li>Steep initial learning curve, but pays off fast</li>
+                    </ul>
+                </div>
+
+                <div class="framework-card">
+                    <div class="framework-number">02</div>
+                    <h3 style="margin-top:0;">Django (Python)</h3>
+                    <p>Django's "batteries included" philosophy means you get everything from ORM to authentication to admin panels out of the box. It's the go-to for Python developers building data-heavy or content-driven applications.</p>
+                    <ul>
+                        <li>Built-in admin interface is a productivity superpower</li>
+                        <li>Python's data ecosystem (pandas, numpy) pairs naturally</li>
+                        <li>Excellent for rapid prototyping and MVPs</li>
+                        <li>Strong community and thorough documentation</li>
+                    </ul>
+                </div>
+
+                <div class="framework-card">
+                    <div class="framework-number">03</div>
+                    <h3 style="margin-top:0;">Express.js (Node)</h3>
+                    <p>Express is minimalist by design. It gives you a thin layer over Node's HTTP module and lets you build exactly the API you need without constraints. The JavaScript-everywhere approach is appealing if you already work on the frontend.</p>
+                    <ul>
+                        <li>Same language on frontend and backend</li>
+                        <li>Massive npm ecosystem</li>
+                        <li>Extremely fast for I/O-heavy APIs</li>
+                        <li>You need discipline — Express won't enforce structure for you</li>
+                    </ul>
+                </div>
+
+                <div class="framework-card">
+                    <div class="framework-number">04</div>
+                    <h3 style="margin-top:0;">FastAPI (Python)</h3>
+                    <p>FastAPI is the modern Python framework built for speed — both runtime performance and developer productivity. If you're building microservices or ML-backed APIs, FastAPI is hard to beat.</p>
+                    <ul>
+                        <li>Automatic OpenAPI documentation generation</li>
+                        <li>Built-in async support with Python's asyncio</li>
+                        <li>Type hints give you IDE autocomplete and runtime validation</li>
+                        <li>Excellent choice for ML and data science APIs</li>
+                    </ul>
+                </div>
+
+                <div class="framework-card">
+                    <div class="framework-number">05</div>
+                    <h3 style="margin-top:0;">NestJS (TypeScript / Node)</h3>
+                    <p>NestJS brings Angular-style architecture to the backend — decorators, dependency injection, modules. If you want opinionated structure and TypeScript support, it's the most mature option in the Node world.</p>
+                    <ul>
+                        <li>Strong TypeScript support from day one</li>
+                        <li>Built-in support for microservices, WebSockets, GraphQL</li>
+                        <li>Familiar patterns for Angular developers</li>
+                        <li>Excellent for large-scale Node applications</li>
+                    </ul>
+                </div>
+
+                <h2>Which One Should You Start With?</h2>
+                <p>
+                    It depends on your goal. If you want <strong>job security in enterprise</strong>, learn Spring Boot. If you want <strong>fast prototyping in Python</strong>, go Django or FastAPI. If you're already a <strong>JavaScript developer</strong>, Express or NestJS will feel natural.
+                </p>
+                <p>
+                    Don't try to learn all five at once. Pick one, build something real with it, and then move on. The fundamentals — routing, middleware, databases, authentication — transfer across all of them.
+                </p>
+
+                <h2>Final Thoughts</h2>
+                <p>
+                    The best framework is the one you actually finish a project with. All five on this list have strong communities, active maintenance, and real job opportunities. Stop overthinking the choice — pick one and start building.
+                </p>
+
+            </div>
+
+            <!-- Back to blog -->
+            <div class="mt-16 pt-8 border-t border-orbit-border">
+                <a href="index.html#blog" class="inline-flex items-center gap-2 text-orbit-muted text-sm hover:text-white transition-colors">
+                    ← Back to all articles
+                </a>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-10 border-t border-orbit-border/40 text-center text-xs text-orbit-muted">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2 font-heading font-bold text-white"><span>Orbit Studios</span></div>
+            <p>© 2026 Orbit Studios. All rights reserved. Built for practical learning.</p>
+        </div>
+    </footer>
+
+</body>
+</html>

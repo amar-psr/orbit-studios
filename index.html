@@ -1,0 +1,1368 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbit Studios | Learn, Code, Debug, Develop</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Lenis Smooth Scroll CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.9/dist/lenis.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orbit: {
+                            bg: '#0B0D12',
+                            card: '#121620',
+                            border: '#1F2636',
+                            accent: '#6366F1',
+                            accentGlow: '#818CF8',
+                            cyan: '#06B6D4',
+                            text: '#F3F4F6',
+                            muted: '#9CA3AF'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Ensure marquee has enough items to loop cleanly on large screens -->
+    <script>
+        (function(){
+            function setupPlatformLoop(){
+                const slider = document.querySelector('.platform-slider');
+                if(!slider) return;
+                const track = slider.querySelector('.platform-track');
+                if(!track) return;
+
+                // Clone children until track width >= 6 * slider width for smooth infinite looping
+                const initialChildren = Array.from(track.children);
+                track.dataset.originalCount = initialChildren.length;
+                // safety limit
+                let safety = 0;
+                while(track.scrollWidth < slider.clientWidth * 6 && safety < 12){
+                    initialChildren.forEach(node => track.appendChild(node.cloneNode(true)));
+                    safety++;
+                }
+
+                // Adjust animation duration based on content width (keeps speed roughly constant)
+                const baseSpeed = 120; // pixels per second target
+                const duration = Math.max(8, Math.round(track.scrollWidth / baseSpeed));
+                track.style.animation = `platform-scroll ${duration}s linear infinite`;
+
+                // Pause animation on touch interactions
+                slider.addEventListener('touchstart', () => { track.style.animationPlayState = 'paused'; }, {passive:true});
+                slider.addEventListener('touchend', () => { track.style.animationPlayState = 'running'; });
+            }
+
+            // Run after fonts/images load to get accurate measurements
+            window.addEventListener('load', setupPlatformLoop);
+            window.addEventListener('resize', function(){
+                // re-run after a short debounce
+                clearTimeout(window.__platformLoopTimer);
+                window.__platformLoopTimer = setTimeout(setupPlatformLoop, 250);
+            });
+        })();
+    </script>
+    <!-- Centered orbital-style carousel (one item centered, fast-slow-fast transitions) -->
+    <script>
+        (function(){
+            function initCarousel(){
+                const slider = document.querySelector('.platform-slider');
+                if(!slider) return;
+                const track = slider.querySelector('.platform-track');
+                if(!track) return;
+
+                // Disable CSS continuous animation when using JS carousel
+                track.style.animation = 'none';
+
+                let slides = Array.from(track.children);
+                const originalCount = parseInt(track.dataset.originalCount || slides.length, 10);
+                let index = originalCount;
+                let animating = false;
+                const duration = 1600; // ms per transition
+
+                function fastSlowFast(u){
+                    if(u < 0.5){
+                        const t = u * 2;
+                        return 0.5 * (1 - Math.pow(1 - t, 3));
+                    } else {
+                        const t = (u - 0.5) * 2;
+                        return 0.5 + 0.5 * Math.pow(t, 3);
+                    }
+                }
+
+                function getCurrentTranslate(){
+                    const t = track.style.transform || `translateX(${track.dataset.translate || 0}px)`;
+                    const m = t.match(/translateX\((-?\d+(?:\.\d+)?)px\)/);
+                    return m ? parseFloat(m[1]) : (parseFloat(track.dataset.translate) || 0);
+                }
+
+                function getSlideCenterOffset(i){
+                    slides = Array.from(track.children); // recalc (in case cloning changed)
+                    const slide = slides[i];
+                    if(!slide) return 0;
+                    const slideRect = slide.getBoundingClientRect();
+                    const sliderRect = slider.getBoundingClientRect();
+                    const slideCenter = slideRect.left + slideRect.width / 2;
+                    const sliderCenter = sliderRect.left + sliderRect.width / 2;
+                    return slideCenter - sliderCenter;
+                }
+
+                function updateSlidesVisual(){
+                    slides.forEach((s) => { s.style.transition = 'transform .28s ease, opacity .28s ease'; });
+                    slides.forEach((s) => { s.style.opacity = 0.65; s.style.transform = 'scale(0.95)'; s.style.zIndex = 1; });
+                    // emphasize center with a moderate scale to avoid overlap
+                    const sliderRect = slider.getBoundingClientRect();
+                    slides.forEach((s) => {
+                        const rect = s.getBoundingClientRect();
+                        const centerDist = Math.abs((rect.left + rect.width/2) - (sliderRect.left + sliderRect.width/2));
+                        const norm = Math.min(1, centerDist / (sliderRect.width/2));
+                        // moderate scale so items do not overlap
+                        const scale = 1 + (1 - Math.pow(norm,1.6)) * 0.12; // max ~1.12
+                        const opacity = 0.7 + (1 - norm) * 0.3;
+                        s.style.transform = `scale(${scale})`;
+                        s.style.opacity = opacity;
+                        s.style.zIndex = Math.round(scale * 100);
+                    });
+                }
+
+                function resetIndexIfNeeded(){
+                    if(!originalCount || index < slides.length - originalCount) return;
+                    const relative = index - originalCount;
+                    const normalized = originalCount + (relative % originalCount);
+                    const resetTarget = -getSlideCenterOffset(normalized);
+                    track.style.transform = `translateX(${resetTarget}px)`;
+                    track.dataset.translate = resetTarget;
+                    index = normalized;
+                }
+
+                function animateTo(nextIndex){
+                    if(animating) return;
+                    animating = true;
+                    slides = Array.from(track.children);
+                    const start = getCurrentTranslate();
+                    const targetTranslate = -getSlideCenterOffset(nextIndex);
+                    const delta = targetTranslate - start;
+                    const startTime = performance.now();
+
+                    function step(now){
+                        const elapsed = now - startTime;
+                        const u = Math.min(1, elapsed / duration);
+                        const p = fastSlowFast(u);
+                        const value = start + delta * p;
+                        track.style.transform = `translateX(${value}px)`;
+                        // visual updates
+                        updateSlidesVisual();
+                        if(u < 1) requestAnimationFrame(step);
+                        else { track.dataset.translate = value; resetIndexIfNeeded(); animating = false; }
+                    }
+                    requestAnimationFrame(step);
+                }
+
+                // initialize center on a middle slide copy so the loop has buffer on both sides
+                function centerInitial(){
+                    slides = Array.from(track.children);
+                    index = originalCount;
+                    const initialTarget = -getSlideCenterOffset(index);
+                    track.style.transform = `translateX(${initialTarget}px)`;
+                    track.dataset.translate = initialTarget;
+                    updateSlidesVisual();
+                }
+
+                centerInitial();
+
+                // autoplay
+                let autoTimer = setInterval(() => { index++; if(index >= slides.length) index = originalCount; animateTo(index); }, 3600);
+                slider.addEventListener('mouseenter', () => clearInterval(autoTimer));
+                slider.addEventListener('mouseleave', () => { clearInterval(autoTimer); autoTimer = setInterval(() => { index++; if(index >= slides.length) index = originalCount; animateTo(index); }, 3600); });
+
+                // touch pause
+                slider.addEventListener('touchstart', () => clearInterval(autoTimer), {passive:true});
+                slider.addEventListener('touchend', () => { clearInterval(autoTimer); autoTimer = setInterval(() => { index++; if(index >= slides.length) index = originalCount; animateTo(index); }, 3600); });
+
+                // click to center
+                slides.forEach((s, i) => s.addEventListener('click', () => { clearInterval(autoTimer); index = i; animateTo(i); }));
+
+                // recompute on resize
+                window.addEventListener('resize', () => { clearTimeout(window.__carouselTimer); window.__carouselTimer = setTimeout(() => { centerInitial(); }, 200); });
+            }
+
+            if(document.readyState === 'complete') initCarousel(); else window.addEventListener('load', initCarousel);
+        })();
+    </script>
+
+    <style>
+        body {
+            background-color: #000000;
+            color: #F3F4F6;
+            overflow-x: hidden;
+        }
+
+        /* Night sky starfield background */
+        .bg-grid {
+            background-color: #000000;
+            background-image:
+                radial-gradient(circle, rgba(255,255,255,0.92) 1px, transparent 0),
+                radial-gradient(circle, rgba(255,255,255,0.4) 0.8px, transparent 0),
+                radial-gradient(circle, rgba(255,255,255,0.18) 0.5px, transparent 0);
+            background-size: 160px 160px, 96px 96px, 48px 48px;
+            background-position: 10% 15%, 45% 60%, 80% 25%;
+        }
+
+        /* Glow Effect for Highlights */
+        .glow-effect {
+            position: relative;
+        }
+        .glow-effect::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 60%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Glassmorphism Navigation */
+        .glass-nav {
+            background: rgba(11,13,18,0.00);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0);
+            transition: background .35s ease, border-color .35s ease, box-shadow .35s ease, transform .35s ease;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 50;
+        }
+
+        /* subtle separated outline below nav when scrolled */
+        .glass-nav::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: -12px; /* creates visible separation gap */
+            height: 12px;
+            pointer-events: none;
+            background: linear-gradient(to bottom, rgba(11,13,18,0), rgba(11,13,18,0.04));
+            filter: blur(6px);
+            opacity: 0;
+            transition: opacity .35s ease;
+        }
+
+        /* inner nav container styles (for rounded corners while keeping header full-bleed) */
+        .nav-inner {
+            width: 100%;
+            transition: background .35s ease, border-color .35s ease, box-shadow .35s ease, transform .35s ease, border-radius .35s ease, padding .35s ease, margin .35s ease;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* scrolled state: translucent but more solid, with faint outline and rounded corners */
+        .glass-nav.scrolled .nav-inner {
+            background: rgba(11,13,18,0.48);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(2,6,23,0.45);
+            padding: 12px 24px;
+            width: calc(100% - 36px);
+            margin: 6px auto 0;
+        }
+        .glass-nav.scrolled::after { opacity: 1; }
+
+        /* Shared card hover polish for the whole page */
+        .interactive-card,
+        .about-card,
+        .course-card {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.4s ease, box-shadow 0.4s ease, background-color 0.35s ease;
+            will-change: transform, box-shadow;
+        }
+
+        .interactive-card:hover,
+        .about-card:hover {
+            transform: translateY(-8px) scale(1.01);
+            border-color: rgba(129, 140, 248, 0.45);
+            box-shadow: 0 16px 40px -12px rgba(129, 140, 248, 0.28);
+            background-color: rgba(18, 22, 32, 0.96);
+        }
+
+        .course-tile {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s ease, border-color 0.4s ease;
+            will-change: transform, box-shadow;
+        }
+
+        .course-tile:hover {
+            transform: translateY(-8px) scale(1.01);
+            border-color: rgba(129, 140, 248, 0.45);
+            box-shadow: 0 16px 40px -12px rgba(129, 140, 248, 0.28);
+        }
+
+        .course-card-img {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform;
+        }
+
+        .course-tile:hover .course-card-img {
+            transform: translateY(-4px) scale(1.02);
+        }
+
+        .course-tile:hover .course-card {
+            transform: translateY(-2px);
+        }
+
+        .about-cards .about-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 44px -16px rgba(129, 140, 248, 0.34);
+        }
+
+        .about-cards .about-card:not(:hover) {
+            transform: translateY(0);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        /* ── Hero two-column layout ── */
+        .hero-shell {
+            display: grid;
+            grid-template-columns: 1fr;
+            width: 100%;
+            gap: 0;
+            align-items: center;
+        }
+        @media (min-width: 1024px) {
+            .hero-shell {
+                grid-template-columns: 1fr 1fr;
+                min-height: 86vh;
+            }
+        }
+
+        .hero-text-col {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 3rem 0 3rem 0;
+        }
+
+        .hero-canvas-col {
+            display: none; /* column no longer needed — canvas is fixed background */
+        }
+
+        /* Canvas is absolute inside the hero section only */
+        #solar-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .hero-text-block {
+            position: relative;
+            width: 100%;
+            padding-left: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero-title {
+            font-size: clamp(2.8rem, 5.5vw, 5rem);
+            line-height: 1.04;
+            margin-bottom: 1.4rem;
+        }
+
+        .hero-subcopy {
+            max-width: 560px;
+            font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+            margin-bottom: 1.4rem;
+        }
+
+        .hero-line {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 5px;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 999px;
+            box-shadow: 0 0 10px rgba(255,255,255,0.35), 0 0 24px rgba(129,140,248,0.25);
+        }
+
+        .hero-text-group {
+            position: relative;
+            z-index: 2;
+            will-change: transform, opacity;
+        }
+
+        /* Each hero line clips from left before JS runs — GSAP will animate these */
+        .hero-entry-item {
+            clip-path: inset(0 100% 0 0);
+            will-change: transform, opacity;
+        }
+
+        /* CTA buttons row below text */
+        .hero-cta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-left: 2rem;
+        }
+
+        /* Glow ring — no border, pure radial glow */
+        .hero-entry-ring {
+            background: radial-gradient(circle, rgba(129, 140, 248, 0.18) 0%, rgba(129, 140, 248, 0.08) 30%, rgba(255, 255, 255, 0) 72%);
+            transform-origin: center center;
+            filter: blur(0.2px);
+            width: min(90%, 640px);
+            height: min(90%, 640px);
+            pointer-events: none;
+        }
+
+        /* Courses available on marquee */
+        .platform-shell {
+            position: relative;
+            width: 100%;
+            padding: 2rem 0;
+            margin: 0 auto;
+        }
+        .platform-shell::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 999px / 120px;
+            pointer-events: none;
+            box-shadow: 0 0 0 1px rgba(255,255,255,0.04);
+        }
+        .platform-shell::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: calc(100% - 4rem);
+            height: 1px;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.18), rgba(255,255,255,0));
+            pointer-events: none;
+        }
+        .platform-slider {
+            overflow: hidden;
+            position: relative;
+            width: min(320px, 100%);
+            max-width: 320px;
+            margin: 0 auto;
+            padding: 1rem 0;
+            background: rgba(255,255,255,0.025);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .platform-track {
+            display: flex;
+            width: max-content;
+            align-items: center;
+            gap: 1rem;
+            animation: platform-scroll 24s linear infinite;
+            padding: 0;
+        }
+        .platform-slide {
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 260px; /* slightly larger basis to allow scaling */
+            height: 72px;
+            margin: 0;
+            padding: 0.7rem 1.2rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(18,22,32,0.7);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+            box-sizing: border-box;
+            transition: transform .28s ease, opacity .28s ease;
+            will-change: transform, opacity;
+            transform-origin: center center;
+            position: relative;
+            z-index: 1;
+        }
+        .platform-slide img {
+            max-height: 44px;
+            max-width: 180px;
+            width: auto;
+            object-fit: contain;
+            filter: brightness(1.05) contrast(1.02);
+            display: block;
+        }
+        @keyframes platform-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .platform-slide { min-width: 140px; margin: 0 0.6rem; padding: 0.65rem 0.9rem; }
+            .platform-slide img { max-height: 28px; }
+            .platform-track { animation-duration: 18s; }
+        }
+        @media (max-width: 420px) {
+            /* On very small screens make the slider touch-scrollable and stop the auto animation */
+            .platform-track { animation: none; transform: translateX(0); }
+            .platform-slider { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+            .platform-track { display: flex; gap: 0.6rem; }
+            .platform-slide { min-width: 120px; padding: 0.5rem 0.8rem; }
+        }
+        .platform-slider:hover .platform-track { animation-play-state: paused; }
+
+        /* Course cards responsiveness */
+        @media (max-width: 640px) {
+            .course-card-img { height: 160px !important; }
+            .course-card { padding: 1rem !important; }
+        }
+
+        /* ── Stats bar ── */
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+        }
+        .stat-number {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1;
+            background: linear-gradient(135deg, #fff 30%, #818CF8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .stat-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #9CA3AF;
+            font-weight: 500;
+        }
+
+        /* ── How It Works steps ── */
+        .step-connector {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, rgba(129,140,248,0.4), rgba(129,140,248,0.05));
+            margin: 0 1rem;
+            margin-top: -2rem;
+        }
+        @media (max-width: 768px) {
+            .step-connector { display: none; }
+        }
+
+        /* ── FAQ accordion ── */
+        .faq-item {
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .faq-question {
+            width: 100%;
+            text-align: left;
+            padding: 1.25rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #F3F4F6;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .faq-question:hover { color: #818CF8; }
+        .faq-icon {
+            width: 22px;
+            height: 22px;
+            flex-shrink: 0;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            line-height: 1;
+            transition: transform 0.3s ease, border-color 0.2s, background 0.2s;
+            color: #818CF8;
+        }
+        .faq-item.open .faq-icon {
+            transform: rotate(45deg);
+            background: rgba(129,140,248,0.12);
+            border-color: rgba(129,140,248,0.4);
+        }
+        .faq-answer {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height 0.35s ease, padding 0.35s ease;
+            padding-bottom: 0;
+        }
+        .faq-answer p {
+            color: #9CA3AF;
+            font-size: 0.9rem;
+            line-height: 1.75;
+            padding-bottom: 1.25rem;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased bg-grid">
+
+    <!-- Ambient Glow Orbs -->
+    <div class="fixed top-[-10%] left-[-10%] w-[500px] h-[500px] bg-orbit-accentGlow/20 rounded-full blur-[140px] pointer-events-none z-0"></div>
+    <div class="fixed bottom-[10%] right-[-10%] w-[600px] h-[600px] bg-orbit-accentGlow/10 rounded-full blur-[160px] pointer-events-none z-0"></div>
+
+    <!-- Navigation Header -->
+    <header id="site-header" class="fixed top-0 left-0 right-0 z-50 glass-nav">
+        <div class="nav-inner max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-orbit-accentGlow flex items-center justify-center font-heading font-bold text-white shadow-lg shadow-orbit-accentGlow/30 group-hover:scale-105 transition-transform">
+                        O
+                    </div>
+                    <span class="font-heading font-bold text-xl tracking-tight text-white">Orbit<span class="text-orbit-accentGlow">.</span>Studios</span>
+
+            <nav class="hidden md:flex items-center gap-8 font-medium text-sm text-orbit-muted">
+                <a href="#about" class="hover:text-white transition-colors">About Us</a>
+                <a href="#courses" class="hover:text-white transition-colors">Courses</a>
+                <a href="#blog" class="hover:text-white transition-colors">Blog</a>
+            </nav>
+
+            <div class="flex items-center gap-4">
+                <a href="#contact" class="px-5 py-2.5 rounded-full text-sm font-semibold bg-white/10 text-white border border-white/15 hover:bg-white hover:text-orbit-bg transition-all duration-300">
+                    Contact Us
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative z-10 pt-24">
+
+        <!-- Hero Section -->
+        <section id="hero-section" class="relative min-h-[94vh] flex items-center overflow-hidden">
+            <!-- Solar system canvas — covers hero section only -->
+            <canvas id="solar-canvas" class="absolute inset-0 w-full h-full pointer-events-none" style="z-index:0;"></canvas>
+            <!-- Glow ring sits behind hero text as a visual backdrop -->
+            <div class="hero-entry-ring fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full pointer-events-none" style="z-index:1;"></div>
+            <div class="w-full max-w-7xl mx-auto px-6 relative" style="z-index:2;">
+                <div class="hero-shell">
+
+                    <!-- LEFT: text column -->
+                    <div class="hero-text-col">
+                        <div class="hero-text-block">
+                            <div class="hero-line"></div>
+                            <div class="hero-text-group">
+                                <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-orbit-accentGlow/10 border border-orbit-accentGlow/30 text-orbit-accentGlow text-xs font-semibold uppercase tracking-widest mb-7 hero-entry-item">
+                                    <span class="w-2 h-2 rounded-full bg-orbit-accentGlow animate-pulse"></span>
+                                    Learn • Code • Debug • Develop
+                                </div>
+
+                                <h1 class="hero-title font-heading font-bold tracking-tight text-white hero-entry-item">
+                                    Learn what <span class="text-orbit-accentGlow">truly matters</span> for your tech career.
+                                </h1>
+
+                                <p class="hero-subcopy text-orbit-muted leading-relaxed font-light hero-entry-item">
+                                    From deep tech to hands-on creation, explore content built for your future. Stay updated with modern trends and acquire practical skills to shape a successful journey.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- CTA buttons -->
+                        <div class="hero-cta-row hero-entry-item">
+                            <a href="#courses" class="px-8 py-4 rounded-full bg-orbit-accentGlow text-white font-semibold text-base whitespace-nowrap shadow-lg shadow-orbit-accentGlow/25 hover:bg-orbit-accentGlow/90 hover:scale-105 transition-all">
+                                Explore Courses
+                            </a>
+                            <a href="#about" class="px-8 py-4 rounded-full bg-orbit-card border border-orbit-border text-white font-semibold text-base whitespace-nowrap shadow-lg shadow-black/20 hover:bg-orbit-border/50 transition-all">
+                                Learn More
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+                <!-- Trusted Platforms Banner -->
+                <!--
+                <div class="mt-20 pt-10 border-t border-orbit-border/50 gsap-hero-reveal">
+                    <p class="text-xs uppercase tracking-wider text-orbit-muted mb-6">Courses available on modern platforms & tech stacks</p>
+                    <div class="flex flex-wrap justify-center items-center gap-8 md:gap-16 opacity-60 filter grayscale hover:grayscale-0 transition-all duration-500">
+                        <span class="font-heading font-semibold text-lg text-white">Spring Boot</span>
+                        <span class="font-heading font-semibold text-lg text-white">Java</span>
+                        <span class="font-heading font-semibold text-lg text-white">Playwright</span>
+                        <span class="font-heading font-semibold text-lg text-white">Python</span>
+                    </div>
+                </div>
+                -->
+
+                <!--
+                <div class="mt-8 gsap-hero-reveal">
+                    <h2 class="text-2xl sm:text-3xl font-heading font-semibold text-white mb-4">Courses available on</h2>
+                    <div class="platform-shell">
+                        <div class="platform-slider">
+                            <div class="platform-track">
+                            <div class="platform-slide"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhOgVXm2szNHSM1xrleHQmCV-ZOEROGrFTlCHvS55IFeLH5taoBBux1BOaQ4aUDdKKus0Q4Ppdqk4kexU02qKLqhlTwPtEpKWFUZXcC-ul9wZSK9-RCJ6uC-splXLrprClppFrRIpBPna7ZLyqn1wtoQNrLrA9vQBouQaP-fD3R9znln6E_0m79IXkMRLk/w200-h100/udemy-new-20212512-removebg-preview.png" alt="Udemy" /></div>
+                            <div class="platform-slide"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEji2-spreiNtUbFWqjJx5dPmX6YKmO1-U6NapdhQUx-6e3ozbDEVtyY3OFQhtCEhyMSdIDiGQChF2X1wrKMUEuBIWhb5ZfGjZFUIJ6gYmdyPe9teTEd2FB82VtpGuB8xejezUeaXL_heLY3DMrl5ltZi0SMde1z78AzIz8H2hcALjp3WHBoSOCa6xzErYo/w200-h100/skillshare-logo-png_seeklogo-389038.png" alt="Skillshare" /></div>
+                            <div class="platform-slide"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjl3wH08uXOfwAmqZmTaVuslimGlp4MkeMe-lbScO_jbLSkicYQPxTPwhbfoH3OfMancm6sdl_HxNwLY0waEO-ePVu8IDMM9xUrjCuhIExHvaDinVOFb3l1pfV8zBc98tla9PwS_QpBVNf_CsZQB46-Y2K9Zuxi4mVomeVIXgZ8mCiit0Ef5IQ39Z_3hWg/w200-h84/Logo_of_YouTube_(2015-2017).svg.png" alt="YouTube" /></div>
+                            <div class="platform-slide"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg2HtPj1vZrgrKMmClxH94zM1RwE5AUkbRwzCPOCXRtRBHFBQ2A7blUnkFHJC1J_l7Kmu5Q1oc3IB5FArzgKcpcuR4LFCntptcdv5FdebXyZXdBle_roNuIfScHSey5sq6phCrJJ4m0DTGbdF3DsG-7aBNQSuYAPGyEJtuJ0YQxY8sM9ATbQ2rNxAkZWjo/w200-h104/Coursmos_Logo.png" alt="Coursmos" /></div>
+                            <div class="platform-slide"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhOgVXm2szNHSM1xrleHQmCV-ZOEROGrFTlCHvS55IFeLH5taoBBux1BOaQ4aUDdKKus0Q4Ppdqk4kexU02qKLqhlTwPtEpKWFUZXcC-ul9wZSK9-RCJ6uC-splXLrprClppFrRIpBPna7ZLyqn1wtoQNrLrA9vQBouQaP-fD3R9znln6E_0m79IXkMRLk/w200-h100/udemy-new-20212512-removebg-preview.png" alt="Udemy" /></div>
+                            <div class="platform-slide"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEji2-spreiNtUbFWqjJx5dPmX6YKmO1-U6NapdhQUx-6e3ozbDEVtyY3OFQhtCEhyMSdIDiGQChF2X1wrKMUEuBIWhb5ZfGjZFUIJ6gYmdyPe9teTEd2FB82VtpGuB8xejezUeaXL_heLY3DMrl5ltZi0SMde1z78AzIz8H2hcALjp3WHBoSOCa6xzErYo/w200-h100/skillshare-logo-png_seeklogo-389038.png" alt="Skillshare" /></div>
+                            <div class="platform-slide"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjl3wH08uXOfwAmqZmTaVuslimGlp4MkeMe-lbScO_jbLSkicYQPxTPwhbfoH3OfMancm6sdl_HxNwLY0waEO-ePVu8IDMM9xUrjCuhIExHvaDinVOFb3l1pfV8zBc98tla9PwS_QpBVNf_CsZQB46-Y2K9Zuxi4mVomeVIXgZ8mCiit0Ef5IQ39Z_3hWg/w200-h84/Logo_of_YouTube_(2015-2017).svg.png" alt="YouTube" /></div>
+                            <div class="platform-slide"><img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg2HtPj1vZrgrKMmClxH94zM1RwE5AUkbRwzCPOCXRtRBHFBQ2A7blUnkFHJC1J_l7Kmu5Q1oc3IB5FArzgKcpcuR4LFCntptcdv5FdebXyZXdBle_roNuIfScHSey5sq6phCrJJ4m0DTGbdF3DsG-7aBNQSuYAPGyEJtuJ0YQxY8sM9ATbQ2rNxAkZWjo/w200-h104/Coursmos_Logo.png" alt="Coursmos" /></div>
+                        </div>
+                    </div>
+                </div>
+                -->
+
+            </div>
+        </section>
+
+        <!-- Stats Bar -->
+        <section class="py-16 px-6 border-t border-orbit-border/40 bg-orbit-card/30 gsap-reveal">
+            <div class="max-w-5xl mx-auto">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
+                    <div class="stat-item">
+                        <span class="stat-number">3</span>
+                        <span class="stat-label">Courses Launching</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">Free</span>
+                        <span class="stat-label">To Get Started</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Practical Content</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">0</span>
+                        <span class="stat-label">Fluff. Zero.</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about" class="py-24 px-6 border-t border-orbit-border/40 bg-orbit-bg/50">
+            <div class="max-w-7xl mx-auto">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                    
+                    <div class="lg:col-span-5 gsap-reveal">
+                        <div class="inline-block text-orbit-accentGlow text-sm font-semibold tracking-wider uppercase mb-3">About Orbit Studios</div>
+                        <h2 class="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-6 leading-tight">
+                            A passionate team of developers who learn by doing.
+                        </h2>
+                        <p class="text-orbit-muted text-base leading-relaxed mb-6">
+                            We’re driven by our shared love for coding, debugging, and building things that matter. More importantly, we believe in sharing everything we discover along the way.
+                        </p>
+                    </div>
+
+                    <div class="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-6 gsap-reveal about-cards">
+                        
+                        <div class="p-8 rounded-2xl bg-orbit-card border border-orbit-border interactive-card about-card">
+                            <div class="w-12 h-12 rounded-xl bg-orbit-accentGlow/10 border border-orbit-accentGlow/20 flex items-center justify-center text-orbit-accentGlow font-bold text-xl mb-6">
+                                ⚡
+                            </div>
+                            <h3 class="font-heading text-xl font-bold text-white mb-3">Build & Share</h3>
+                            <p class="text-orbit-muted text-sm leading-relaxed">
+                                Hands-on practical engineering. We eliminate filler content and focus purely on real-world execution and knowledge distribution.
+                            </p>
+                        </div>
+
+                        <div class="p-8 rounded-2xl bg-orbit-card border border-orbit-border interactive-card about-card">
+                            <div class="w-12 h-12 rounded-xl bg-orbit-accentGlow/10 border border-orbit-accentGlow/20 flex items-center justify-center text-orbit-accentGlow font-bold text-xl mb-6">
+                                🎯
+                            </div>
+                            <h3 class="font-heading text-xl font-bold text-white mb-3">Our Goal</h3>
+                            <p class="text-orbit-muted text-sm leading-relaxed">
+                                No fluff. No filler. Just practical knowledge that helps you grow whether you're starting out or sharpening backend & testing skills.
+                            </p>
+                        </div>
+
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- How It Works Section -->
+        <section class="py-24 px-6 border-t border-orbit-border/40">
+            <div class="max-w-7xl mx-auto">
+                <div class="text-center max-w-2xl mx-auto mb-16 gsap-reveal">
+                    <span class="text-orbit-accentGlow text-sm font-semibold tracking-wider uppercase">Simple Process</span>
+                    <h2 class="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white mt-2">How it works</h2>
+                    <p class="text-orbit-muted text-base mt-4">Three steps from zero to building real projects.</p>
+                </div>
+
+                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-8 md:gap-0 gsap-reveal">
+
+                    <!-- Step 1 -->
+                    <div class="flex flex-col items-center text-center max-w-xs mx-auto md:mx-0 flex-1">
+                        <div class="w-16 h-16 rounded-2xl bg-orbit-accentGlow/10 border border-orbit-accentGlow/25 flex items-center justify-center text-orbit-accentGlow font-heading font-bold text-2xl mb-5 shadow-lg shadow-orbit-accentGlow/10">
+                            01
+                        </div>
+                        <h3 class="font-heading text-lg font-bold text-white mb-2">Browse Courses</h3>
+                        <p class="text-orbit-muted text-sm leading-relaxed">
+                            Explore our library of practical courses on Java, Spring Boot, Playwright, and more. Find what fits your career path.
+                        </p>
+                    </div>
+
+                    <div class="step-connector hidden md:block"></div>
+
+                    <!-- Step 2 -->
+                    <div class="flex flex-col items-center text-center max-w-xs mx-auto md:mx-0 flex-1">
+                        <div class="w-16 h-16 rounded-2xl bg-orbit-accentGlow/10 border border-orbit-accentGlow/25 flex items-center justify-center text-orbit-accentGlow font-heading font-bold text-2xl mb-5 shadow-lg shadow-orbit-accentGlow/10">
+                            02
+                        </div>
+                        <h3 class="font-heading text-lg font-bold text-white mb-2">Learn by Doing</h3>
+                        <p class="text-orbit-muted text-sm leading-relaxed">
+                            No fluff, no filler. Every lesson is hands-on — you write real code, debug real issues, and build real things from day one.
+                        </p>
+                    </div>
+
+                    <div class="step-connector hidden md:block"></div>
+
+                    <!-- Step 3 -->
+                    <div class="flex flex-col items-center text-center max-w-xs mx-auto md:mx-0 flex-1">
+                        <div class="w-16 h-16 rounded-2xl bg-orbit-accentGlow/10 border border-orbit-accentGlow/25 flex items-center justify-center text-orbit-accentGlow font-heading font-bold text-2xl mb-5 shadow-lg shadow-orbit-accentGlow/10">
+                            03
+                        </div>
+                        <h3 class="font-heading text-lg font-bold text-white mb-2">Build Your Portfolio</h3>
+                        <p class="text-orbit-muted text-sm leading-relaxed">
+                            Walk away with working projects you can show employers. Practical skills, real results, no wasted time.
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Courses Section -->
+        <section id="courses" class="py-24 px-6 border-t border-orbit-border/40">
+            <div class="max-w-7xl mx-auto">
+                <div class="max-w-3xl mb-12 gsap-reveal">
+                    <span class="text-orbit-accentGlow text-sm font-semibold tracking-wider uppercase">Courses Available On</span>
+                    <h2 class="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white mt-2">Courses We Offer</h2>
+                    <p class="text-orbit-muted text-base leading-relaxed mt-4">
+                        Browse through our practical courses designed to help you build real skills in backend development, automation, and modern engineering workflows.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="overflow-hidden rounded-[28px] border border-orbit-border bg-orbit-card interactive-card course-tile gsap-reveal flex flex-col">
+                        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhKJbAPdym_a98K40wAeUYVc2Wt8-W3XiK0DcOOHl4v7cdWeyuIAWZNHnI7OQfP93n3FSzz2Emm1qwvAu-I4SS2dnknzYIbI7iaD6ZLws1SXbnue-ZDZ4q5xSTG3YEFBku18Fc1jtRgLefQ3os5wOOyFQVr0qMEtgvDuZ4vWHtLzx5AA-6pEQGmrVxedEA/w640-h640/Clean%20Minimal%20Launching%20Soon%20Instagram%20Post.png" alt="Spring Boot course" class="w-full h-40 md:h-48 object-cover course-card-img" />
+                        <div class="p-6 md:p-8 course-card flex flex-col flex-1">
+                            <div class="flex-1">
+                                <h3 class="font-heading text-2xl font-bold text-white mb-3">SpringBoot for Beginners</h3>
+                                <p class="text-orbit-muted text-sm leading-relaxed">
+                                    Learn to build powerful Java applications with Spring Boot. This beginner-friendly course covers REST APIs, databases, and backend essentials with hands-on projects.
+                                </p>
+                            </div>
+                            <div class="pt-5">
+                                <a href="coming-soon.html" class="inline-flex items-center justify-center gap-2 w-full px-6 py-3.5 rounded-full bg-orbit-accentGlow text-white text-sm font-semibold hover:bg-orbit-accentGlow/85 hover:scale-105 transition-all shadow-lg shadow-orbit-accentGlow/25">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                                    Available on Udemy
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-hidden rounded-[28px] border border-orbit-border bg-orbit-card interactive-card course-tile gsap-reveal flex flex-col">
+                        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhKJbAPdym_a98K40wAeUYVc2Wt8-W3XiK0DcOOHl4v7cdWeyuIAWZNHnI7OQfP93n3FSzz2Emm1qwvAu-I4SS2dnknzYIbI7iaD6ZLws1SXbnue-ZDZ4q5xSTG3YEFBku18Fc1jtRgLefQ3os5wOOyFQVr0qMEtgvDuZ4vWHtLzx5AA-6pEQGmrVxedEA/w640-h640/Clean%20Minimal%20Launching%20Soon%20Instagram%20Post.png" alt="Java backend course" class="w-full h-40 md:h-48 object-cover course-card-img" />
+                        <div class="p-6 md:p-8 course-card flex flex-col flex-1">
+                            <div class="flex-1">
+                                <h3 class="font-heading text-2xl font-bold text-white mb-3">Java for Backend Development</h3>
+                                <p class="text-orbit-muted text-sm leading-relaxed">
+                                    Master the fundamentals of Java for backend development. Learn to build scalable APIs, handle databases, and create robust server-side applications.
+                                </p>
+                            </div>
+                            <div class="pt-5">
+                                <a href="coming-soon.html" class="inline-flex items-center justify-center gap-2 w-full px-6 py-3.5 rounded-full bg-orbit-accentGlow text-white text-sm font-semibold hover:bg-orbit-accentGlow/85 hover:scale-105 transition-all shadow-lg shadow-orbit-accentGlow/25">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                                    Available on Udemy
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="overflow-hidden rounded-[28px] border border-orbit-border bg-orbit-card interactive-card course-tile gsap-reveal flex flex-col">
+                        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhKJbAPdym_a98K40wAeUYVc2Wt8-W3XiK0DcOOHl4v7cdWeyuIAWZNHnI7OQfP93n3FSzz2Emm1qwvAu-I4SS2dnknzYIbI7iaD6ZLws1SXbnue-ZDZ4q5xSTG3YEFBku18Fc1jtRgLefQ3os5wOOyFQVr0qMEtgvDuZ4vWHtLzx5AA-6pEQGmrVxedEA/w200-h640/Clean%20Minimal%20Launching%20Soon%20Instagram%20Post.png" alt="Playwright course" class="w-full h-40 md:h-48 object-cover course-card-img" />
+                        <div class="p-6 md:p-8 course-card flex flex-col flex-1">
+                            <div class="flex-1">
+                                <h3 class="font-heading text-2xl font-bold text-white mb-3">Introduction to Playwright</h3>
+                                <p class="text-orbit-muted text-sm leading-relaxed">
+                                    Learn end-to-end web testing with Playwright. This course covers browser automation, testing workflows, and writing reliable test scripts for modern web apps.
+                                </p>
+                            </div>
+                            <div class="pt-5">
+                                <a href="coming-soon.html" class="inline-flex items-center justify-center gap-2 w-full px-6 py-3.5 rounded-full bg-orbit-accentGlow text-white text-sm font-semibold hover:bg-orbit-accentGlow/85 hover:scale-105 transition-all shadow-lg shadow-orbit-accentGlow/25">
+                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
+                                    Available on Udemy
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Articles/Blog Section -->
+        <section id="blog" class="py-24 px-6 border-t border-orbit-border/40 bg-orbit-bg/50">
+            <div class="max-w-7xl mx-auto">
+                <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6 gsap-reveal">
+                    <div>
+                        <span class="text-orbit-accentGlow text-sm font-semibold tracking-wider uppercase">Insights</span>
+                        <h2 class="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white mt-2">Articles from us</h2>
+                    </div>
+                    <p class="text-orbit-muted max-w-md text-sm">
+                        Discover the latest insights, trends, and engineering updates straight from our core team.
+                    </p>
+                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+
+                    <!-- Article 1 -->
+                    <a href="article-1.html" class="p-6 rounded-2xl bg-orbit-card/60 border border-orbit-border hover:border-orbit-accentGlow/40 transition-all flex flex-col justify-between group gsap-reveal">
+                        <div>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Backend</span>
+                                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Programming</span>
+                            </div>
+                            <h3 class="font-heading text-xl font-bold text-white group-hover:text-orbit-accentGlow transition-colors mb-3">Top 5 Backend Frameworks to Learn</h3>
+                            <p class="text-orbit-muted text-xs leading-relaxed mb-6">Explore the most in-demand backend frameworks like Spring Boot, Django, Node.js, and more. Find out which one suits your goals.</p>
+                        </div>
+                        <span class="text-xs text-orbit-muted group-hover:text-white transition-colors">Read Article &rarr;</span>
+                    </a>
+
+                    <!-- Article 2 -->
+                    <a href="article-2.html" class="p-6 rounded-2xl bg-orbit-card/60 border border-orbit-border hover:border-orbit-accentGlow/40 transition-all flex flex-col justify-between group gsap-reveal">
+                        <div>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Playwright</span>
+                                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Testing</span>
+                            </div>
+                            <h3 class="font-heading text-xl font-bold text-white group-hover:text-orbit-accentGlow transition-colors mb-3">Beginner's Guide to API Testing with Playwright</h3>
+                            <p class="text-orbit-muted text-xs leading-relaxed mb-6">Learn how to use Playwright not just for UI testing but also for API testing. A simple guide to improve software quality.</p>
+                        </div>
+                        <span class="text-xs text-orbit-muted group-hover:text-white transition-colors">Read Article &rarr;</span>
+                    </a>
+
+                    <!-- Article 3 -->
+                    <a href="article-3.html" class="p-6 rounded-2xl bg-orbit-card/60 border border-orbit-border hover:border-orbit-accentGlow/40 transition-all flex flex-col justify-between group gsap-reveal">
+                        <div>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Java</span>
+                                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Python</span>
+                            </div>
+                            <h3 class="font-heading text-xl font-bold text-white group-hover:text-orbit-accentGlow transition-colors mb-3">Java vs Python for Backend Development</h3>
+                            <p class="text-orbit-muted text-xs leading-relaxed mb-6">A quick comparison of Java and Python for backend development. Understand their strengths, weaknesses, and which fits best.</p>
+                        </div>
+                        <span class="text-xs text-orbit-muted group-hover:text-white transition-colors">Read Article &rarr;</span>
+                    </a>
+
+                </div>                <div class="text-center gsap-reveal">
+                    <a href="articles.html" class="px-6 py-3 rounded-full bg-orbit-card border border-orbit-border text-white text-sm font-semibold hover:border-white/40 transition-all inline-block">
+                        View All Articles
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- FAQ Section -->
+        <section id="faq" class="py-24 px-6 border-t border-orbit-border/40">
+            <div class="max-w-3xl mx-auto">
+                <div class="text-center mb-14 gsap-reveal">
+                    <span class="text-orbit-accentGlow text-sm font-semibold tracking-wider uppercase">Got Questions?</span>
+                    <h2 class="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white mt-2">Frequently Asked</h2>
+                </div>
+
+                <div class="space-y-0 gsap-reveal" id="faq-list">
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Are the courses free?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer"><p>Most of our content is available for free on YouTube and our blog. Premium courses with structured projects and deeper content are available on Udemy and Skillshare at affordable prices.</p></div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            What skill level do I need to start?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer"><p>Our courses are designed for beginners and intermediate learners. If you know the basics of programming, you are ready. Absolute beginner tracks are also available for Java and Python.</p></div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Will I get a certificate after completing a course?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer"><p>Courses hosted on Udemy and Skillshare include a completion certificate you can share on LinkedIn or attach to your resume. Free YouTube content does not include a certificate.</p></div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            How often is new content added?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer"><p>We publish new articles and tutorials regularly and aim to release at least one major course per quarter. Subscribe to our newsletter or follow us to get notified the moment new content drops.</p></div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            Can I suggest a topic or course?
+                            <span class="faq-icon">+</span>
+                        </button>
+                        <div class="faq-answer"><p>Absolutely. We build based on what the community actually needs. Drop us a message through the Contact section and we will seriously consider your suggestion for the next course.</p></div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact" class="py-24 px-6 border-t border-orbit-border/40 relative">
+            <div class="max-w-4xl mx-auto p-10 md:p-16 rounded-3xl bg-gradient-to-b from-orbit-card to-orbit-bg border border-orbit-border relative overflow-hidden text-center gsap-reveal">
+                
+                <div class="absolute inset-0 bg-gradient-to-r from-orbit-accentGlow/10 to-orbit-accentGlow/10 pointer-events-none"></div>
+
+                <h2 class="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 relative z-10">
+                    Ready to shape your tech future?
+                </h2>
+                <p class="text-orbit-muted text-base max-w-lg mx-auto mb-8 relative z-10">
+                    Contact us for more information, course details, or assistance on how to get started.
+                </p>
+
+                <form class="max-w-md mx-auto space-y-4 relative z-10" onsubmit="event.preventDefault();">
+                    <input type="email" placeholder="Enter your email address" class="w-full px-5 py-4 rounded-full bg-orbit-bg/80 border border-orbit-border text-white placeholder-orbit-muted focus:outline-none focus:border-orbit-accentGlow text-sm transition-all" required>
+                    <button type="submit" class="w-full px-6 py-4 rounded-full bg-orbit-accentGlow text-white font-semibold text-sm hover:bg-orbit-accentGlow/90 hover:opacity-90 transition-all">
+                        Get In Touch
+                    </button>
+                </form>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-12 border-t border-orbit-border/40 text-center text-xs text-orbit-muted">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2 font-heading font-bold text-white">
+                <span>Orbit Studios</span>
+            </div>
+            <p>© 2026 Orbit Studios. All rights reserved. Built for practical learning.</p>
+        </div>
+    </footer>
+
+    <!-- GSAP & ScrollTrigger CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <!-- Lenis Smooth Scroll -->
+    <script src="https://unpkg.com/lenis@1.1.9/dist/lenis.min.js"></script>
+
+    <script>
+        // 1. Initialize Lenis Smooth Scrolling
+        const lenis = new Lenis({
+            duration: 1.2,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            smoothWheel: true
+        });
+
+        function raf(time) {
+            lenis.raf(time);
+            requestAnimationFrame(raf);
+        }
+        requestAnimationFrame(raf);
+
+        // Integrate Lenis with GSAP ScrollTrigger
+        gsap.registerPlugin(ScrollTrigger);
+        lenis.on('scroll', ScrollTrigger.update);
+
+        // Fluid background-dots parallax — driven by GSAP ticker so it stays in sync with Lenis
+        (function(){
+            const bgEl = document.querySelector('.bg-grid');
+            if(!bgEl) return;
+
+            // Each layer: base x/y (%), parallax speed, lerp factor
+            const layers = [
+                { bx: 10, by: 15, speed: 0.75, lerp: 0.08 },
+                { bx: 45, by: 60, speed: 0.45, lerp: 0.06 },
+                { bx: 80, by: 25, speed: 0.22, lerp: 0.04 }
+            ];
+
+            // Smoothed Y values per layer
+            const current = layers.map(() => ({ y: 0 }));
+
+            gsap.ticker.add(function(){
+                const rawY = window.scrollY || window.pageYOffset;
+
+                layers.forEach((l, i) => {
+                    const targetY = rawY * l.speed;
+                    // Lerp toward target — gives a smooth trailing feel
+                    current[i].y += (targetY - current[i].y) * l.lerp;
+                });
+
+                const positions = layers.map((l, i) =>
+                    `${l.bx}% calc(${l.by}% + ${current[i].y}px)`
+                );
+                bgEl.style.backgroundPosition = positions.join(', ');
+            });
+        })();
+        gsap.ticker.add((time) => {
+            lenis.raf(time * 1000);
+        });
+
+        // 2. GSAP Animations
+        // Hero section: vertical line grows, then the headline emerges from the left and the orbit stage settles in
+        const heroRing = document.querySelector('.hero-entry-ring');
+        const heroLine = document.querySelector('.hero-line');
+        const heroTextGroup = document.querySelector('.hero-text-group');
+        const heroItems = document.querySelectorAll('.hero-entry-item');
+
+        if(heroRing && heroLine && heroTextGroup && heroItems.length){
+            const heroTimeline = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+            // Bar starts collapsed, items start clipped (left-to-right wipe)
+            gsap.set(heroLine, { scaleY: 0, opacity: 0, transformOrigin: 'top center' });
+            gsap.set(heroItems, { clipPath: 'inset(0 100% 0 0)' });
+
+            heroTimeline
+                // Ring fades in
+                .fromTo(heroRing, {
+                    opacity: 0, scale: 0.72
+                }, {
+                    opacity: 0.7, scale: 1.08, duration: 0.9
+                })
+                // Bar grows downward from top
+                .to(heroLine, {
+                    scaleY: 1,
+                    opacity: 1,
+                    duration: 0.55,
+                    ease: 'power2.inOut'
+                }, '-=0.4')
+                // Each item wipes in left→right, one after the other, starting right after the bar
+                .to(heroItems, {
+                    clipPath: 'inset(0 0% 0 0)',
+                    duration: 0.62,
+                    ease: 'power2.inOut',
+                    stagger: 0.18   // next line starts only after previous begins to settle
+                }, '-=0.05');
+            // Bar stays visible permanently
+        }
+
+        // ScrollTrigger Reveal for Sections
+        const revealElements = document.querySelectorAll(".gsap-reveal");
+        revealElements.forEach((el) => {
+            gsap.from(el, {
+                scrollTrigger: {
+                    trigger: el,
+                    start: "top 85%",
+                    toggleActions: "play none none none"
+                },
+                y: 30,
+                opacity: 0,
+                duration: 0.8,
+                ease: "power2.out"
+            });
+        });
+    </script>
+    <!-- Navbar scroll translucency script -->
+    <script>
+        (function(){
+            const header = document.getElementById('site-header') || document.querySelector('.glass-nav');
+            if(!header) return;
+
+            let lastY = window.scrollY;
+            let ticking = false;
+
+            function update(){
+                if(window.scrollY > 12){
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+                ticking = false;
+            }
+
+            window.addEventListener('scroll', function(){
+                lastY = window.scrollY;
+                if(!ticking){
+                    window.requestAnimationFrame(update);
+                    ticking = true;
+                }
+            }, {passive: true});
+
+            // apply initial state
+            if(window.scrollY > 12) header.classList.add('scrolled');
+        })();
+    </script>
+
+    <!-- Solar system animation script -->
+    <script>
+        (function(){
+            const canvas = document.getElementById('solar-canvas');
+            if(!canvas) return;
+            const ctx = canvas.getContext('2d');
+
+            let DPR = Math.max(1, window.devicePixelRatio || 1);
+            let W = 0, H = 0;
+            let center = { x: 0, y: 0 };
+
+            function resize(){
+                DPR = Math.max(1, window.devicePixelRatio || 1);
+                const section = canvas.closest('section') || canvas.parentElement;
+                const r = section.getBoundingClientRect();
+                W = r.width;
+                H = r.height;
+                canvas.width  = Math.round(W * DPR);
+                canvas.height = Math.round(H * DPR);
+                canvas.style.width  = W + 'px';
+                canvas.style.height = H + 'px';
+                ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+                center = { x: W * 0.68, y: H / 2 };
+            }
+
+            resize();
+            window.addEventListener('resize', resize);
+
+            // ── Planet presets ──────────────────────────────────────────────
+            const presets = {
+                default: [
+                    {name:'mercury', orbit:  130, size:13, color:'#C7B198', speed:0.012},
+                    {name:'venus',   orbit:  195, size:18, color:'#E6A95C', speed:0.007},
+                    {name:'earth',   orbit:  275, size:22, color:'#4FB3FF', speed:0.005},
+                    {name:'mars',    orbit:  360, size:17, color:'#FF6B6B', speed:0.004},
+                    {name:'jupiter', orbit:  465, size:34, color:'#D9C6A3', speed:0.003},
+                    {name:'saturn',  orbit:  570, size:26, color:'#E8D5A3', speed:0.002},
+                    {name:'uranus',  orbit:  665, size:20, color:'#7DE8E8', speed:0.0014},
+                ],
+                about: [
+                    {name:'alpha', orbit: 155, size:17, color:'#9B5CFF', speed:0.010},
+                    {name:'beta',  orbit: 250, size:22, color:'#06B6D4', speed:0.006},
+                    {name:'gamma', orbit: 360, size:30, color:'#FFD166', speed:0.004},
+                ],
+                courses: [
+                    {name:'one',   orbit: 165, size:15, color:'#8EE4AF', speed:0.012},
+                    {name:'two',   orbit: 270, size:22, color:'#6A7CFF', speed:0.007},
+                    {name:'three', orbit: 375, size:28, color:'#FFB86B', speed:0.005},
+                ],
+                blog: [
+                    {name:'dot',  orbit: 215, size:20, color:'#A78BFA', speed:0.009},
+                    {name:'dash', orbit: 325, size:25, color:'#60A5FA', speed:0.006},
+                ],
+                contact: [
+                    {name:'solo', orbit: 250, size:32, color:'#34D399', speed:0.006},
+                ],
+            };
+
+            let planets = [];
+            function createPlanetsFrom(preset){
+                planets = (preset || presets.default).map(p => ({...p, angle: Math.random() * Math.PI * 2}));
+            }
+            createPlanetsFrom(presets.default);
+
+            // ── Draw ────────────────────────────────────────────────────────
+            function drawSun(){
+                const r = 100;
+                const g = ctx.createRadialGradient(center.x, center.y, r*0.2, center.x, center.y, r*2.8);
+                g.addColorStop(0,    'rgba(255,210,90,0.95)');
+                g.addColorStop(0.25, 'rgba(255,160,40,0.8)');
+                g.addColorStop(1,    'rgba(255,120,20,0)');
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.arc(center.x, center.y, r * 2.2, 0, Math.PI * 2);
+                ctx.fill();
+
+                ctx.beginPath();
+                ctx.fillStyle = '#FFDD66';
+                ctx.shadowColor = 'rgba(255,200,80,0.9)';
+                ctx.shadowBlur  = 28;
+                ctx.arc(center.x, center.y, r, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.shadowBlur = 0;
+            }
+
+            function draw(){
+                ctx.clearRect(0, 0, W, H);
+
+                // Orbit guide rings
+                planets.forEach(p => {
+                    ctx.beginPath();
+                    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+                    ctx.lineWidth   = 1;
+                    ctx.setLineDash([4, 6]);
+                    ctx.arc(center.x, center.y, p.orbit, 0, Math.PI * 2);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                });
+
+                drawSun();
+
+                planets.forEach(p => {
+                    p.angle += p.speed;
+                    const x = center.x + Math.cos(p.angle) * p.orbit;
+                    const y = center.y + Math.sin(p.angle) * p.orbit * 0.9;
+
+                    // Drop shadow
+                    ctx.beginPath();
+                    ctx.fillStyle = 'rgba(0,0,0,0.15)';
+                    ctx.ellipse(x + 5, y + 5, p.size * 0.9, p.size * 0.5, 0, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Planet
+                    ctx.beginPath();
+                    ctx.fillStyle   = p.color;
+                    ctx.shadowColor = p.color;
+                    ctx.shadowBlur  = 16;
+                    ctx.arc(x, y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                });
+
+                requestAnimationFrame(draw);
+            }
+            requestAnimationFrame(draw);
+
+            // Solar system always uses the default preset — no switching on scroll
+        })();
+    </script>
+    <!-- FAQ accordion script -->
+    <script>
+        document.querySelectorAll('.faq-item').forEach(item => {
+            item.querySelector('.faq-question').addEventListener('click', () => {
+                const isOpen = item.classList.contains('open');
+                // Close all
+                document.querySelectorAll('.faq-item.open').forEach(el => el.classList.remove('open'));
+                // Open clicked if it was closed
+                if(!isOpen) item.classList.add('open');
+            });
+        });
+    </script>
+</body>
+</html>

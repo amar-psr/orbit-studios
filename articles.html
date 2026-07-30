@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Articles | Orbit Studios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orbit: {
+                            bg: '#0B0D12', card: '#121620', border: '#1F2636',
+                            accent: '#6366F1', accentGlow: '#818CF8',
+                            cyan: '#06B6D4', text: '#F3F4F6', muted: '#9CA3AF'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0B0D12; color: #F3F4F6; overflow-x: hidden; }
+
+        .glass-nav {
+            background: rgba(11,13,18,0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+        }
+        .nav-inner { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+
+        /* Dot background */
+        body {
+            background-image:
+                radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 0),
+                radial-gradient(circle, rgba(255,255,255,0.03) 0.8px, transparent 0);
+            background-size: 160px 160px, 80px 80px;
+            background-position: 10% 15%, 45% 60%;
+        }
+
+        /* Article card */
+        .article-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 1.5rem;
+            border-radius: 1rem;
+            background: rgba(18,22,32,0.6);
+            border: 1px solid #1F2636;
+            text-decoration: none;
+            transition: border-color 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .article-card:hover {
+            border-color: rgba(129,140,248,0.4);
+            transform: translateY(-6px);
+            box-shadow: 0 16px 40px -12px rgba(129,140,248,0.2);
+        }
+        .article-card:hover .card-title { color: #818CF8; }
+        .card-title { color: #F3F4F6; transition: color 0.2s; }
+        .read-link { color: #9CA3AF; font-size: 0.75rem; transition: color 0.2s; }
+        .article-card:hover .read-link { color: #fff; }
+
+        /* Tag filter pills */
+        .tag-pill {
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: #9CA3AF;
+            cursor: pointer;
+            transition: background 0.2s, border-color 0.2s, color 0.2s;
+        }
+        .tag-pill:hover, .tag-pill.active {
+            background: rgba(129,140,248,0.12);
+            border-color: rgba(129,140,248,0.4);
+            color: #818CF8;
+        }
+
+        /* Fade-in animation */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .article-card { animation: fadeUp 0.45s ease both; }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <!-- Nav -->
+    <header class="glass-nav">
+        <div class="nav-inner max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-orbit-accentGlow flex items-center justify-center font-heading font-bold text-white shadow-lg shadow-orbit-accentGlow/30 group-hover:scale-105 transition-transform">O</div>
+                <span class="font-heading font-bold text-xl tracking-tight text-white">Orbit<span class="text-orbit-accentGlow">.</span>Studios</span>
+            </a>
+            <nav class="hidden md:flex items-center gap-8 font-medium text-sm text-orbit-muted">
+                <a href="index.html#about"   class="hover:text-white transition-colors">About Us</a>
+                <a href="index.html#courses" class="hover:text-white transition-colors">Courses</a>
+                <a href="articles.html"      class="text-white transition-colors">Blog</a>
+            </nav>
+            <a href="index.html#contact" class="px-5 py-2.5 rounded-full text-sm font-semibold bg-white/10 text-white border border-white/15 hover:bg-white hover:text-orbit-bg transition-all duration-300">
+                Contact Us
+            </a>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-24 px-6">
+        <div class="max-w-7xl mx-auto">
+
+            <!-- Page header -->
+            <div class="mb-12">
+                <a href="index.html" class="inline-flex items-center gap-2 text-orbit-muted text-sm hover:text-white transition-colors mb-6">← Back to Home</a>
+                <div class="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <span class="text-orbit-accentGlow text-sm font-semibold tracking-wider uppercase">Insights</span>
+                        <h1 class="font-heading text-4xl sm:text-5xl font-bold text-white mt-1">All Articles</h1>
+                        <p class="text-orbit-muted text-base mt-3 max-w-lg">Practical guides, comparisons, and deep dives from the Orbit Studios team.</p>
+                    </div>
+                    <span id="article-count" class="text-orbit-muted text-sm self-end md:self-auto">5 articles</span>
+                </div>
+            </div>
+
+            <!-- Tag filters -->
+            <div class="flex flex-wrap gap-2 mb-10" id="tag-filters">
+                <button class="tag-pill active" data-tag="all">All</button>
+                <button class="tag-pill" data-tag="backend">Backend</button>
+                <button class="tag-pill" data-tag="spring boot">Spring Boot</button>
+                <button class="tag-pill" data-tag="java">Java</button>
+                <button class="tag-pill" data-tag="python">Python</button>
+                <button class="tag-pill" data-tag="playwright">Playwright</button>
+                <button class="tag-pill" data-tag="testing">Testing</button>
+                <button class="tag-pill" data-tag="programming">Programming</button>
+            </div>
+
+            <!-- Articles grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="articles-grid">
+
+                <a href="article-1.html" class="article-card" data-tags="backend programming" style="animation-delay:0.05s">
+                    <div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Backend</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Programming</span>
+                        </div>
+                        <h2 class="card-title font-heading text-lg font-bold mb-3 leading-snug">Top 5 Backend Frameworks to Learn</h2>
+                        <p class="text-orbit-muted text-xs leading-relaxed mb-5">Explore the most in-demand backend frameworks like Spring Boot, Django, Node.js, and more. Find out which one suits your goals.</p>
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-orbit-muted text-[11px]">July 2026 · 8 min read</span>
+                        <span class="read-link">Read →</span>
+                    </div>
+                </a>
+
+                <a href="article-2.html" class="article-card" data-tags="playwright testing" style="animation-delay:0.12s">
+                    <div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Playwright</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Testing</span>
+                        </div>
+                        <h2 class="card-title font-heading text-lg font-bold mb-3 leading-snug">Beginner's Guide to API Testing with Playwright</h2>
+                        <p class="text-orbit-muted text-xs leading-relaxed mb-5">Learn how to use Playwright not just for UI testing but also for API testing. A simple guide to improve software quality.</p>
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-orbit-muted text-[11px]">July 2026 · 7 min read</span>
+                        <span class="read-link">Read →</span>
+                    </div>
+                </a>
+
+                <a href="article-3.html" class="article-card" data-tags="java python" style="animation-delay:0.19s">
+                    <div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Java</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Python</span>
+                        </div>
+                        <h2 class="card-title font-heading text-lg font-bold mb-3 leading-snug">Java vs Python for Backend Development</h2>
+                        <p class="text-orbit-muted text-xs leading-relaxed mb-5">A quick comparison of Java and Python for backend development. Understand their strengths, weaknesses, and which fits best.</p>
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-orbit-muted text-[11px]">July 2026 · 9 min read</span>
+                        <span class="read-link">Read →</span>
+                    </div>
+                </a>
+
+                <a href="article-4.html" class="article-card" data-tags="spring boot java backend" style="animation-delay:0.26s">
+                    <div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Spring Boot</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Java</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Backend</span>
+                        </div>
+                        <h2 class="card-title font-heading text-lg font-bold mb-3 leading-snug">Getting Started with Spring Boot REST APIs</h2>
+                        <p class="text-orbit-muted text-xs leading-relaxed mb-5">Spring Boot makes building production-ready REST APIs straightforward. From zero to a working API with proper structure in under 30 minutes.</p>
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-orbit-muted text-[11px]">July 2026 · 10 min read</span>
+                        <span class="read-link">Read →</span>
+                    </div>
+                </a>
+
+                <a href="article-5.html" class="article-card" data-tags="playwright testing automation" style="animation-delay:0.33s">
+                    <div>
+                        <div class="flex flex-wrap gap-2 mb-4">
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Playwright</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Testing</span>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Automation</span>
+                        </div>
+                        <h2 class="card-title font-heading text-lg font-bold mb-3 leading-snug">Writing Your First Playwright UI Test</h2>
+                        <p class="text-orbit-muted text-xs leading-relaxed mb-5">Playwright makes browser automation reliable and fast. Install Playwright and write your first real end-to-end UI test from scratch.</p>
+                    </div>
+                    <div class="flex items-center justify-between mt-2">
+                        <span class="text-orbit-muted text-[11px]">July 2026 · 8 min read</span>
+                        <span class="read-link">Read →</span>
+                    </div>
+                </a>
+
+            </div>
+
+            <!-- Empty state -->
+            <div id="empty-state" class="hidden text-center py-20">
+                <p class="text-orbit-muted text-base">No articles found for this tag.</p>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-10 border-t border-orbit-border/40 text-center text-xs text-orbit-muted">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2 font-heading font-bold text-white"><span>Orbit Studios</span></div>
+            <p>© 2026 Orbit Studios. All rights reserved. Built for practical learning.</p>
+        </div>
+    </footer>
+
+    <script>
+        const pills   = document.querySelectorAll('.tag-pill');
+        const cards   = document.querySelectorAll('.article-card');
+        const counter = document.getElementById('article-count');
+        const empty   = document.getElementById('empty-state');
+
+        pills.forEach(pill => {
+            pill.addEventListener('click', () => {
+                // Update active pill
+                pills.forEach(p => p.classList.remove('active'));
+                pill.classList.add('active');
+
+                const tag = pill.dataset.tag;
+                let visible = 0;
+
+                cards.forEach((card, i) => {
+                    const tags = card.dataset.tags;
+                    const show = tag === 'all' || tags.includes(tag);
+                    card.style.display = show ? 'flex' : 'none';
+                    if(show){
+                        card.style.animationDelay = (visible * 0.07) + 's';
+                        card.style.animation = 'none';
+                        // Trigger reflow so animation restarts
+                        void card.offsetWidth;
+                        card.style.animation = '';
+                        visible++;
+                    }
+                });
+
+                counter.textContent = visible + (visible === 1 ? ' article' : ' articles');
+                empty.classList.toggle('hidden', visible > 0);
+            });
+        });
+    </script>
+
+</body>
+</html>

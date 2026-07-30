@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started with Spring Boot REST APIs | Orbit Studios</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orbit: {
+                            bg: '#0B0D12', card: '#121620', border: '#1F2636',
+                            accent: '#6366F1', accentGlow: '#818CF8',
+                            cyan: '#06B6D4', text: '#F3F4F6', muted: '#9CA3AF'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { background-color: #0B0D12; color: #F3F4F6; overflow-x: hidden; }
+        .glass-nav {
+            background: rgba(11,13,18,0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+        }
+        .nav-inner { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+
+        .article-body h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.4rem, 2.5vw, 1.8rem);
+            font-weight: 700; color: #F3F4F6;
+            margin: 2.5rem 0 1rem; line-height: 1.2;
+        }
+        .article-body h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.1rem, 1.8vw, 1.3rem);
+            font-weight: 600; color: #818CF8;
+            margin: 2rem 0 0.75rem;
+        }
+        .article-body p { color: #9CA3AF; font-size: 1rem; line-height: 1.85; margin-bottom: 1.25rem; }
+        .article-body ul { list-style: none; padding: 0; margin-bottom: 1.25rem; }
+        .article-body ul li {
+            color: #9CA3AF; font-size: 1rem; line-height: 1.85;
+            padding-left: 1.5rem; position: relative; margin-bottom: 0.5rem;
+        }
+        .article-body ul li::before { content: '→'; position: absolute; left: 0; color: #818CF8; }
+        .article-body strong { color: #F3F4F6; font-weight: 600; }
+
+        .code-block {
+            background: #0D1117;
+            border: 1px solid #1F2636;
+            border-radius: 0.75rem;
+            padding: 1.25rem 1.5rem;
+            margin: 1.5rem 0;
+            overflow-x: auto;
+        }
+        .code-block pre {
+            font-family: 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+            font-size: 0.85rem; line-height: 1.7; color: #E2E8F0; margin: 0; white-space: pre;
+        }
+        .kw  { color: #818CF8; }
+        .fn  { color: #06B6D4; }
+        .str { color: #86EFAC; }
+        .cmt { color: #4B5563; font-style: italic; }
+        .an  { color: #FCD34D; }
+
+        .callout {
+            background: rgba(129,140,248,0.07);
+            border-left: 3px solid #818CF8;
+            border-radius: 0 0.5rem 0.5rem 0;
+            padding: 1rem 1.25rem;
+            margin: 1.5rem 0;
+            color: #C7D2FE;
+            font-size: 0.9rem; line-height: 1.7;
+        }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <header class="glass-nav">
+        <div class="nav-inner max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-orbit-accentGlow flex items-center justify-center font-heading font-bold text-white shadow-lg shadow-orbit-accentGlow/30 group-hover:scale-105 transition-transform">O</div>
+                <span class="font-heading font-bold text-xl tracking-tight text-white">Orbit<span class="text-orbit-accentGlow">.</span>Studios</span>
+            </a>
+            <nav class="hidden md:flex items-center gap-8 font-medium text-sm text-orbit-muted">
+                <a href="index.html#about"   class="hover:text-white transition-colors">About Us</a>
+                <a href="index.html#courses" class="hover:text-white transition-colors">Courses</a>
+                <a href="articles.html"      class="hover:text-white transition-colors">Blog</a>
+            </nav>
+            <a href="index.html#contact" class="px-5 py-2.5 rounded-full text-sm font-semibold bg-white/10 text-white border border-white/15 hover:bg-white hover:text-orbit-bg transition-all duration-300">Contact Us</a>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-24 px-6">
+        <div class="max-w-3xl mx-auto">
+
+            <a href="articles.html" class="inline-flex items-center gap-2 text-orbit-muted text-sm hover:text-white transition-colors mb-10">← Back to Articles</a>
+
+            <div class="mb-12">
+                <div class="flex flex-wrap gap-2 mb-5">
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Spring Boot</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Java</span>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded bg-white/5 text-orbit-muted">Backend</span>
+                </div>
+                <h1 class="font-heading text-3xl sm:text-4xl md:text-5xl font-bold text-white leading-tight mb-6">
+                    Getting Started with Spring Boot REST APIs
+                </h1>
+                <p class="text-orbit-muted text-lg leading-relaxed">
+                    Spring Boot makes building production-ready REST APIs straightforward. This guide walks you from zero to a working API with proper structure, in under 30 minutes.
+                </p>
+                <div class="mt-6 pt-6 border-t border-orbit-border flex items-center gap-4 text-orbit-muted text-sm">
+                    <span>By Orbit Studios</span><span>·</span><span>July 2026</span><span>·</span><span>10 min read</span>
+                </div>
+            </div>
+
+            <div class="article-body">
+
+                <p>
+                    Spring Boot is an opinionated layer on top of the Spring Framework that removes most of the boilerplate configuration. With a few annotations and a handful of classes, you can have a fully functional REST API running locally. Here's how.
+                </p>
+
+                <div class="callout">Prerequisites: Java 17+ installed, Maven or Gradle, and a basic understanding of Java classes and annotations.</div>
+
+                <h2>1. Bootstrap the Project</h2>
+                <p>The fastest way is <strong>Spring Initializr</strong> at <a href="https://start.spring.io" target="_blank" style="color:#818CF8;">start.spring.io</a>. Select:</p>
+                <ul>
+                    <li>Project: Maven</li>
+                    <li>Language: Java</li>
+                    <li>Spring Boot: 3.x (latest stable)</li>
+                    <li>Dependencies: <strong>Spring Web</strong></li>
+                </ul>
+                <p>Download, unzip, and open in your IDE. You'll see a single <code style="color:#86EFAC;font-family:monospace;">DemoApplication.java</code> with a <code style="color:#86EFAC;font-family:monospace;">main</code> method. That's your entry point.</p>
+
+                <h2>2. Create Your First Controller</h2>
+                <p>Create a new file <strong>HelloController.java</strong> in the same package:</p>
+
+                <div class="code-block"><pre><span class="kw">package</span> com.example.demo;
+
+<span class="kw">import</span> org.springframework.web.bind.annotation.*;
+
+<span class="an">@RestController</span>
+<span class="an">@RequestMapping</span>(<span class="str">"/api"</span>)
+<span class="kw">public class</span> HelloController {
+
+    <span class="an">@GetMapping</span>(<span class="str">"/hello"</span>)
+    <span class="kw">public</span> String <span class="fn">hello</span>() {
+        <span class="kw">return</span> <span class="str">"Hello from Orbit Studios!"</span>;
+    }
+}</pre></div>
+
+                <p>Run <code style="color:#86EFAC;font-family:monospace;">mvn spring-boot:run</code> and hit <code style="color:#86EFAC;font-family:monospace;">http://localhost:8080/api/hello</code>. You should see the response immediately.</p>
+
+                <h2>3. Return JSON with a Model</h2>
+                <p>Create a simple record to represent your data:</p>
+
+                <div class="code-block"><pre><span class="kw">public record</span> Course(
+    Long id,
+    String title,
+    String description
+) {}</pre></div>
+
+                <p>Now update the controller to return a list:</p>
+
+                <div class="code-block"><pre><span class="an">@GetMapping</span>(<span class="str">"/courses"</span>)
+<span class="kw">public</span> List&lt;Course&gt; <span class="fn">getCourses</span>() {
+    <span class="kw">return</span> List.of(
+        <span class="kw">new</span> <span class="fn">Course</span>(1L, <span class="str">"Spring Boot Basics"</span>, <span class="str">"Learn the fundamentals"</span>),
+        <span class="kw">new</span> <span class="fn">Course</span>(2L, <span class="str">"REST API Design"</span>, <span class="str">"Build clean APIs"</span>)
+    );
+}</pre></div>
+
+                <p>Spring Boot automatically serialises the list to JSON using Jackson — no configuration needed.</p>
+
+                <h2>4. Handle Path Variables and Request Bodies</h2>
+
+                <div class="code-block"><pre><span class="cmt">// GET /api/courses/1</span>
+<span class="an">@GetMapping</span>(<span class="str">"/courses/{id}"</span>)
+<span class="kw">public</span> Course <span class="fn">getCourse</span>(<span class="an">@PathVariable</span> Long id) {
+    <span class="kw">return new</span> <span class="fn">Course</span>(id, <span class="str">"Sample"</span>, <span class="str">"Description"</span>);
+}
+
+<span class="cmt">// POST /api/courses</span>
+<span class="an">@PostMapping</span>(<span class="str">"/courses"</span>)
+<span class="an">@ResponseStatus</span>(HttpStatus.CREATED)
+<span class="kw">public</span> Course <span class="fn">createCourse</span>(<span class="an">@RequestBody</span> Course course) {
+    <span class="cmt">// In a real app, save to database here</span>
+    <span class="kw">return</span> course;
+}</pre></div>
+
+                <h2>5. Key Annotations to Know</h2>
+                <ul>
+                    <li><strong>@RestController</strong> — marks the class as a REST controller, combines @Controller and @ResponseBody</li>
+                    <li><strong>@RequestMapping</strong> — sets the base path for all endpoints in the class</li>
+                    <li><strong>@GetMapping / @PostMapping / @PutMapping / @DeleteMapping</strong> — maps HTTP methods to handler methods</li>
+                    <li><strong>@PathVariable</strong> — extracts a value from the URL path</li>
+                    <li><strong>@RequestBody</strong> — deserialises the request JSON body into a Java object</li>
+                    <li><strong>@ResponseStatus</strong> — sets the HTTP response status code</li>
+                </ul>
+
+                <h2>What's Next</h2>
+                <p>
+                    This is the foundation. From here the natural next steps are: connecting to a database with <strong>Spring Data JPA</strong>, adding input validation with <strong>@Valid</strong> and Bean Validation, and securing your endpoints with <strong>Spring Security</strong>.
+                </p>
+                <p>
+                    Our full Spring Boot for Beginners course covers all of this with hands-on projects from day one.
+                </p>
+
+            </div>
+
+            <div class="mt-16 pt-8 border-t border-orbit-border">
+                <a href="articles.html" class="inline-flex items-center gap-2 text-orbit-muted text-sm hover:text-white transition-colors">← Back to all articles</a>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="py-10 border-t border-orbit-border/40 text-center text-xs text-orbit-muted">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2 font-heading font-bold text-white"><span>Orbit Studios</span></div>
+            <p>© 2026 Orbit Studios. All rights reserved. Built for practical learning.</p>
+        </div>
+    </footer>
+
+</body>
+</html>
