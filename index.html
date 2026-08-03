@@ -1250,6 +1250,52 @@
             });
         });
     </script>
+    <!-- Nav smooth scroll + active link highlight -->
+    <script>
+        (function(){
+            // Intercept all nav anchor clicks and route through Lenis
+            document.querySelectorAll('a[href^="#"]').forEach(link => {
+                link.addEventListener('click', function(e){
+                    const id = this.getAttribute('href');
+                    if(id === '#') return;
+                    const target = document.querySelector(id);
+                    if(!target) return;
+                    e.preventDefault();
+                    // Use Lenis for the smooth animated scroll
+                    lenis.scrollTo(target, {
+                        offset: -80,          // clear the fixed nav height
+                        duration: 1.4,
+                        easing: t => t < 0.5
+                            ? 4 * t * t * t
+                            : 1 - Math.pow(-2 * t + 2, 3) / 2   // ease-in-out-cubic
+                    });
+                });
+            });
+
+            // Highlight the active nav link based on scroll position
+            const navLinks = document.querySelectorAll('nav a[href^="#"]');
+            const sections = Array.from(navLinks)
+                .map(l => document.querySelector(l.getAttribute('href')))
+                .filter(Boolean);
+
+            function setActive(){
+                const scrollY = window.scrollY + 120;
+                let current = sections[0];
+                sections.forEach(s => {
+                    if(scrollY >= s.offsetTop) current = s;
+                });
+                navLinks.forEach(l => {
+                    const isActive = l.getAttribute('href') === '#' + current.id;
+                    l.style.color      = isActive ? '#F3F4F6' : '';
+                    l.style.fontWeight = isActive ? '600'     : '';
+                });
+            }
+
+            lenis.on('scroll', setActive);
+            setActive();
+        })();
+    </script>
+
     <!-- Navbar scroll translucency script -->
     <script>
         (function(){
