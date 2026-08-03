@@ -249,10 +249,13 @@
         </div>
 
         <!-- Notify form -->
-        <form class="notify-form" onsubmit="handleSubmit(event)">
-            <input type="email" id="email-input" placeholder="Enter your email" required />
-            <button type="submit">Notify Me</button>
+        <form class="notify-form" id="notify-form" onsubmit="handleSubmit(event)">
+            <input type="hidden" name="access_key" value="929767f1-c8fa-468d-ab2a-6a8d9e80c082">
+            <input type="hidden" name="subject" value="New launch notification request — Orbit Studios">
+            <input type="email" id="email-input" name="email" placeholder="Enter your email" required />
+            <button type="submit" id="notify-btn">Notify Me</button>
         </form>
+        <p id="notify-msg" style="font-size:0.8rem;margin-top:0.6rem;min-height:1.2rem;"></p>
 
         <a href="index.html" class="back-link">← Back to Home</a>
 
@@ -508,14 +511,42 @@
     })();
 
     // ── Notify form ─────────────────────────────────────────────────────────
-    function handleSubmit(e){
+    async function handleSubmit(e){
         e.preventDefault();
-        const input = document.getElementById('email-input');
-        const btn   = e.target.querySelector('button');
-        btn.textContent   = 'You\'re on the list ✓';
-        btn.style.background = 'rgba(16,185,129,0.85)';
-        input.disabled    = true;
-        btn.disabled      = true;
+        const btn = document.getElementById('notify-btn');
+        const msg = document.getElementById('notify-msg');
+
+        btn.textContent = 'Sending…';
+        btn.disabled    = true;
+
+        const data = new FormData(document.getElementById('notify-form'));
+        const res  = await fetch('https://api.web3forms.com/submit', {
+            method: 'POST',
+            body: data
+        });
+        const json = await res.json();
+
+        if(json.success){
+            btn.textContent      = "You're on the list ✓";
+            btn.style.background = 'rgba(16,185,129,0.85)';
+            msg.textContent      = "We'll email you the moment we launch.";
+            msg.style.color      = '#6EE7B7';
+            document.getElementById('email-input').value = '';
+
+            // Reset after 5 seconds so they can re-submit if needed
+            setTimeout(() => {
+                btn.textContent      = 'Notify Me';
+                btn.style.background = '';
+                btn.disabled         = false;
+                msg.textContent      = '';
+            }, 5000);
+        } else {
+            btn.textContent  = 'Notify Me';
+            btn.disabled     = false;
+            msg.textContent  = 'Something went wrong. Please try again.';
+            msg.style.color  = '#FCA5A5';
+            setTimeout(() => { msg.textContent = ''; }, 4000);
+        }
     }
     </script>
 
