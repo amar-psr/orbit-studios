@@ -1,0 +1,11 @@
+# robots.txt — Orbit Studios (https://orbitstudios.in)
+
+User-agent: *
+Allow: /
+
+# Keep utility and error pages out of search results
+Disallow: /404.html
+Disallow: /coming-soon.html
+
+# Sitemap location
+Sitemap: https://orbitstudios.in/sitemap.xml
