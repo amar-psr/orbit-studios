@@ -1,0 +1,519 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Community | Orbit Studios</title>
+
+    <!-- Primary SEO -->
+    <meta name="description" content="Join the Orbit Studios community — vote on upcoming courses, read the latest announcements, and explore curated resources for developers.">
+    <meta name="keywords" content="orbit studios community, developer community, course poll, java course, spring boot, playwright, coding community india">
+    <meta name="author" content="Orbit Studios">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://orbitstudios.in/community.html">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Community | Orbit Studios">
+    <meta property="og:description" content="Vote on our first course, read announcements, and explore resources — all in one place.">
+    <meta property="og:url" content="https://orbitstudios.in/community.html">
+    <meta property="og:site_name" content="Orbit Studios">
+    <meta property="og:locale" content="en_IN">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Community | Orbit Studios">
+    <meta name="twitter:description" content="Vote on our first course, read announcements, and explore resources.">
+    <meta name="twitter:site" content="@orbitstudios">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        orbit: {
+                            bg: '#0B0D12', card: '#121620', border: '#1F2636',
+                            accent: '#6366F1', accentGlow: '#818CF8',
+                            cyan: '#06B6D4', text: '#F3F4F6', muted: '#9CA3AF'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        heading: ['Space Grotesk', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #0B0D12;
+            color: #F3F4F6;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle, rgba(255,255,255,0.055) 1px, transparent 0),
+                radial-gradient(circle, rgba(255,255,255,0.025) 0.8px, transparent 0);
+            background-size: 160px 160px, 80px 80px;
+            background-position: 10% 15%, 45% 60%;
+        }
+
+        .glass-nav {
+            background: rgba(11,13,18,0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+        }
+        .nav-inner { width: 100%; display: flex; align-items: center; justify-content: space-between; }
+
+        /* Section card */
+        .community-card {
+            background: rgba(18,22,32,0.7);
+            border: 1px solid #1F2636;
+            border-radius: 1.5rem;
+            padding: 2rem;
+            transition: border-color 0.3s ease;
+        }
+        .community-card:hover { border-color: rgba(129,140,248,0.25); }
+
+        /* Section label */
+        .section-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.12em;
+            color: #818CF8;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Poll iframe wrapper */
+        .poll-wrap {
+            position: relative;
+            width: 100%;
+            border-radius: 1rem;
+            overflow: hidden;
+            background: rgba(11,13,18,0.6);
+            border: 1px solid rgba(129,140,248,0.15);
+        }
+        .poll-wrap iframe {
+            width: 100%;
+            min-height: 580px;
+            border: none;
+            display: block;
+            color-scheme: dark;
+        }
+
+        /* Announcement item */
+        .announcement {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .announcement:last-child { border-bottom: none; padding-bottom: 0; }
+        .announcement-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #818CF8;
+            margin-top: 0.45rem;
+            flex-shrink: 0;
+            box-shadow: 0 0 8px rgba(129,140,248,0.5);
+        }
+        .announcement-dot.cyan { background: #06B6D4; box-shadow: 0 0 8px rgba(6,182,212,0.5); }
+        .announcement-dot.green { background: #10B981; box-shadow: 0 0 8px rgba(16,185,129,0.5); }
+        .announcement-date {
+            font-size: 0.7rem;
+            color: #4B5563;
+            margin-top: 0.25rem;
+        }
+
+        /* Resource link card */
+        .resource-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.9rem 1.1rem;
+            border-radius: 0.75rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            text-decoration: none;
+            transition: background 0.2s, border-color 0.2s, transform 0.2s;
+        }
+        .resource-item:hover {
+            background: rgba(129,140,248,0.08);
+            border-color: rgba(129,140,248,0.3);
+            transform: translateX(4px);
+        }
+        .resource-icon {
+            width: 36px; height: 36px;
+            border-radius: 0.5rem;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem;
+            flex-shrink: 0;
+            background: rgba(129,140,248,0.1);
+            border: 1px solid rgba(129,140,248,0.2);
+        }
+
+        /* New badge */
+        .badge-new {
+            font-size: 0.6rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            background: rgba(129,140,248,0.15);
+            border: 1px solid rgba(129,140,248,0.3);
+            color: #818CF8;
+        }
+
+        /* Pulse dot for live */
+        .live-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            display: inline-block;
+            margin-right: 6px;
+            animation: pulse-dot 1.8s ease-in-out infinite;
+        }
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%       { opacity: 0.4; transform: scale(0.7); }
+        }
+
+        /* Fade-up animation */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(16px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        .fade-up { animation: fadeUp 0.5s ease both; }
+    
+        /* ── Community nav pill ── */
+        .community-nav-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.35rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid rgba(129,140,248,0.35);
+            color: #818CF8;
+            font-weight: 600;
+            font-size: 0.875rem;
+            position: relative;
+            animation: community-glow-pulse 2.4s ease-in-out infinite;
+            text-decoration: none;
+            transition: background 0.25s, border-color 0.25s, color 0.25s;
+        }
+        .community-nav-link:hover {
+            background: rgba(129,140,248,0.12);
+            border-color: rgba(129,140,248,0.7);
+            color: #fff;
+            animation: none;
+        }
+        @keyframes community-glow-pulse {
+            0%, 100% {
+                box-shadow: 0 0 6px rgba(129,140,248,0.3), 0 0 0 0 rgba(129,140,248,0.15);
+                border-color: rgba(129,140,248,0.35);
+            }
+            50% {
+                box-shadow: 0 0 14px rgba(129,140,248,0.55), 0 0 0 4px rgba(129,140,248,0.08);
+                border-color: rgba(129,140,248,0.7);
+            }
+        }
+        .community-live-dot {
+            width: 7px; height: 7px;
+            border-radius: 50%;
+            background: #818CF8;
+            display: inline-block;
+            flex-shrink: 0;
+            animation: community-dot-pulse 1.8s ease-in-out infinite;
+        }
+        @keyframes community-dot-pulse {
+            0%, 100% { opacity: 1; transform: scale(1);    box-shadow: 0 0 0 0 rgba(129,140,248,0.5); }
+            50%       { opacity: 0.6; transform: scale(0.75); box-shadow: 0 0 0 3px rgba(129,140,248,0); }
+        }
+    </style>
+</head>
+<body class="font-sans antialiased">
+
+    <!-- Nav -->
+    <header class="glass-nav">
+        <div class="nav-inner max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl bg-orbit-accentGlow flex items-center justify-center font-heading font-bold text-white shadow-lg shadow-orbit-accentGlow/30 group-hover:scale-105 transition-transform">O</div>
+                <span class="font-heading font-bold text-xl tracking-tight text-white">Orbit<span class="text-orbit-accentGlow">.</span>Studios</span>
+            </a>
+            <nav class="hidden md:flex items-center gap-8 font-medium text-sm text-orbit-muted">
+                <a href="index.html#about"   class="hover:text-white transition-colors">About Us</a>
+                <a href="index.html#courses" class="hover:text-white transition-colors">Courses</a>
+                <a href="articles.html"      class="hover:text-white transition-colors">Blog</a>
+                <a href="community.html"     class="text-white font-semibold transition-colors">Community</a>
+            </nav>
+            <a href="index.html#contact" class="px-5 py-2.5 rounded-full text-sm font-semibold bg-white/10 text-white border border-white/15 hover:bg-white hover:text-orbit-bg transition-all duration-300">
+                Contact Us
+            </a>
+        </div>
+    </header>
+
+    <main class="pt-32 pb-24 px-6">
+        <div class="max-w-7xl mx-auto">
+
+            <!-- Page header -->
+            <div class="mb-14 fade-up">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orbit-accentGlow/10 border border-orbit-accentGlow/25 text-orbit-accentGlow text-xs font-semibold uppercase tracking-widest mb-5">
+                    <span class="live-dot"></span>
+                    Live Community
+                </div>
+                <h1 class="font-heading text-4xl sm:text-5xl font-bold text-white mb-4">Community Hub</h1>
+                <p class="text-orbit-muted text-base max-w-xl leading-relaxed">
+                    This is your space. Vote on what we build next, stay updated with announcements, and explore resources we've handpicked for you.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                <!-- LEFT: Poll + Announcements (2 cols) -->
+                <div class="lg:col-span-2 flex flex-col gap-8">
+
+                    <!-- Poll -->
+                    <div class="community-card fade-up" style="animation-delay:0.08s">
+                        <div class="section-label">Community Poll</div>
+                        <h2 class="font-heading text-2xl font-bold text-white mb-2">What should our first course be?</h2>
+                        <p class="text-orbit-muted text-sm mb-6 leading-relaxed">
+                            We're building our first course and we want <strong class="text-white">you</strong> to decide. Cast your vote below — this directly shapes what we create first.
+                        </p>
+
+                        <!-- Google Form embed -->
+                        <div class="poll-wrap">
+                            <iframe
+                                src="https://docs.google.com/forms/d/e/1FAIpQLSfL9wcmaVK9QJPxGRBKMn4NCKONKUkJoxUlvcY4ZIrlO8CqSw/viewform?embedded=true"
+                                frameborder="0"
+                                marginheight="0"
+                                marginwidth="0"
+                                title="Orbit Studios Course Poll"
+                                loading="lazy">
+                                Loading poll…
+                            </iframe>
+                        </div>
+                        <p class="text-orbit-muted text-xs mt-3 text-center">
+                            Results are reviewed by our team — your vote genuinely counts.
+                        </p>
+                    </div>
+
+                    <!-- Announcements -->
+                    <div class="community-card fade-up" style="animation-delay:0.16s">
+                        <div class="section-label">Announcements</div>
+                        <h2 class="font-heading text-xl font-bold text-white mb-6">Latest Updates</h2>
+
+                        <div class="announcement">
+                            <div class="announcement-dot green"></div>
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-white text-sm font-semibold">Community page is live!</span>
+                                    <span class="badge-new">New</span>
+                                </div>
+                                <p class="text-orbit-muted text-xs leading-relaxed">We've launched the Orbit Studios Community Hub. Vote on our first course, stay tuned for announcements, and check out the resources below.</p>
+                                <div class="announcement-date">July 30, 2026</div>
+                            </div>
+                        </div>
+
+                        <div class="announcement">
+                            <div class="announcement-dot cyan"></div>
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-white text-sm font-semibold">5 new articles published</span>
+                                </div>
+                                <p class="text-orbit-muted text-xs leading-relaxed">We've published 5 practical articles covering Spring Boot, Playwright API testing, Java vs Python, backend frameworks, and writing your first UI test.</p>
+                                <div class="announcement-date">July 30, 2026</div>
+                            </div>
+                        </div>
+
+                        <div class="announcement">
+                            <div class="announcement-dot"></div>
+                            <div>
+                                <div class="flex items-center gap-2 mb-1">
+                                    <span class="text-white text-sm font-semibold">Orbit Studios website launched</span>
+                                </div>
+                                <p class="text-orbit-muted text-xs leading-relaxed">Our official site is live. Courses are in development and will be published on Udemy. Drop your email on the home page to get notified first.</p>
+                                <div class="announcement-date">July 2026</div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- RIGHT: Resources + Quick Links -->
+                <div class="flex flex-col gap-8">
+
+                    <!-- Useful Resources -->
+                    <div class="community-card fade-up" style="animation-delay:0.12s">
+                        <div class="section-label">Resources</div>
+                        <h2 class="font-heading text-xl font-bold text-white mb-5">Handpicked for You</h2>
+
+                        <div class="flex flex-col gap-3">
+
+                            <a href="https://start.spring.io" target="_blank" rel="noopener" class="resource-item">
+                                <div class="flex items-center gap-3">
+                                    <div class="resource-icon">🚀</div>
+                                    <div>
+                                        <div class="text-white text-sm font-semibold">Spring Initializr</div>
+                                        <div class="text-orbit-muted text-xs">Bootstrap a Spring Boot project instantly</div>
+                                    </div>
+                                </div>
+                                <svg class="w-4 h-4 text-orbit-muted flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            </a>
+
+                            <a href="https://playwright.dev/docs/intro" target="_blank" rel="noopener" class="resource-item">
+                                <div class="flex items-center gap-3">
+                                    <div class="resource-icon">🎭</div>
+                                    <div>
+                                        <div class="text-white text-sm font-semibold">Playwright Docs</div>
+                                        <div class="text-orbit-muted text-xs">Official Playwright getting started guide</div>
+                                    </div>
+                                </div>
+                                <svg class="w-4 h-4 text-orbit-muted flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            </a>
+
+                            <a href="https://docs.oracle.com/en/java/" target="_blank" rel="noopener" class="resource-item">
+                                <div class="flex items-center gap-3">
+                                    <div class="resource-icon">☕</div>
+                                    <div>
+                                        <div class="text-white text-sm font-semibold">Java Docs</div>
+                                        <div class="text-orbit-muted text-xs">Official Oracle Java documentation</div>
+                                    </div>
+                                </div>
+                                <svg class="w-4 h-4 text-orbit-muted flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            </a>
+
+                            <a href="https://www.python.org/doc/" target="_blank" rel="noopener" class="resource-item">
+                                <div class="flex items-center gap-3">
+                                    <div class="resource-icon">🐍</div>
+                                    <div>
+                                        <div class="text-white text-sm font-semibold">Python Docs</div>
+                                        <div class="text-orbit-muted text-xs">Official Python language documentation</div>
+                                    </div>
+                                </div>
+                                <svg class="w-4 h-4 text-orbit-muted flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            </a>
+
+                            <a href="https://roadmap.sh/backend" target="_blank" rel="noopener" class="resource-item">
+                                <div class="flex items-center gap-3">
+                                    <div class="resource-icon">🗺️</div>
+                                    <div>
+                                        <div class="text-white text-sm font-semibold">Backend Roadmap</div>
+                                        <div class="text-orbit-muted text-xs">roadmap.sh — full backend learning path</div>
+                                    </div>
+                                </div>
+                                <svg class="w-4 h-4 text-orbit-muted flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                            </a>
+
+                        </div>
+                    </div>
+
+                    <!-- Quick Links -->
+                    <div class="community-card fade-up" style="animation-delay:0.2s">
+                        <div class="section-label">Quick Links</div>
+                        <h2 class="font-heading text-xl font-bold text-white mb-5">Explore the Site</h2>
+                        <div class="flex flex-col gap-2">
+                            <a href="articles.html" class="resource-item">
+                                <div class="flex items-center gap-3">
+                                    <div class="resource-icon">📝</div>
+                                    <div class="text-white text-sm font-semibold">All Articles</div>
+                                </div>
+                                <svg class="w-4 h-4 text-orbit-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+                            <a href="index.html#courses" class="resource-item">
+                                <div class="flex items-center gap-3">
+                                    <div class="resource-icon">🎓</div>
+                                    <div class="text-white text-sm font-semibold">Our Courses</div>
+                                </div>
+                                <svg class="w-4 h-4 text-orbit-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+                            <a href="index.html#contact" class="resource-item">
+                                <div class="flex items-center gap-3">
+                                    <div class="resource-icon">✉️</div>
+                                    <div class="text-white text-sm font-semibold">Contact Us</div>
+                                </div>
+                                <svg class="w-4 h-4 text-orbit-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Stay in the loop -->
+                    <div class="community-card fade-up" style="animation-delay:0.24s" style="background: linear-gradient(135deg, rgba(129,140,248,0.08), rgba(6,182,212,0.05));">
+                        <div class="section-label">Newsletter</div>
+                        <h2 class="font-heading text-lg font-bold text-white mb-2">Stay in the loop</h2>
+                        <p class="text-orbit-muted text-xs leading-relaxed mb-4">Get notified when new courses and articles drop. No spam, ever.</p>
+                        <form id="community-notify-form" class="flex flex-col gap-3">
+                            <input type="hidden" name="access_key" value="929767f1-c8fa-468d-ab2a-6a8d9e80c082">
+                            <input type="hidden" name="subject" value="New subscriber from Community page — Orbit Studios">
+                            <input type="email" name="email" id="community-email" placeholder="Your email address" required
+                                class="w-full px-4 py-3 rounded-full bg-orbit-bg/80 border border-orbit-border text-white placeholder-orbit-muted focus:outline-none focus:border-orbit-accentGlow text-sm transition-all">
+                            <button type="submit" id="community-notify-btn"
+                                class="w-full px-4 py-3 rounded-full bg-orbit-accentGlow text-white text-sm font-semibold hover:bg-orbit-accentGlow/85 hover:scale-105 transition-all shadow-lg shadow-orbit-accentGlow/20">
+                                Notify Me
+                            </button>
+                            <p id="community-notify-msg" class="text-xs text-center min-h-[1rem]"></p>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-10 border-t border-orbit-border/40 text-center text-xs text-orbit-muted">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-2 font-heading font-bold text-white"><span>Orbit Studios</span></div>
+            <p>© 2026 Orbit Studios. All rights reserved. Built for practical learning.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Newsletter form
+        (function(){
+            const form = document.getElementById('community-notify-form');
+            const btn  = document.getElementById('community-notify-btn');
+            const msg  = document.getElementById('community-notify-msg');
+
+            form.addEventListener('submit', async function(e){
+                e.preventDefault();
+                btn.textContent = 'Sending…';
+                btn.disabled    = true;
+
+                const data = new FormData(form);
+                const res  = await fetch('https://api.web3forms.com/submit', { method: 'POST', body: data });
+                const json = await res.json();
+
+                if(json.success){
+                    btn.textContent      = "You're on the list ✓";
+                    btn.style.background = 'rgba(16,185,129,0.85)';
+                    msg.textContent      = "We'll email you when something new drops.";
+                    msg.style.color      = '#6EE7B7';
+                    document.getElementById('community-email').value = '';
+                    setTimeout(() => {
+                        btn.textContent      = 'Notify Me';
+                        btn.style.background = '';
+                        btn.disabled         = false;
+                        msg.textContent      = '';
+                    }, 5000);
+                } else {
+                    btn.textContent = 'Notify Me';
+                    btn.disabled    = false;
+                    msg.textContent = 'Something went wrong. Please try again.';
+                    msg.style.color = '#FCA5A5';
+                    setTimeout(() => { msg.textContent = ''; }, 4000);
+                }
+            });
+        })();
+    </script>
+
+</body>
+</html>
